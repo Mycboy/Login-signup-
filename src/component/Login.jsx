@@ -2,57 +2,36 @@ import React, { useState } from 'react'
 import './Login.css'
 
 const Login = () => {
-  const [form, setForm] = useState({ username: '', email: '', password: '' })
-
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setForm((s) => ({ ...s, [name]: value }))
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    const action = e.nativeEvent?.submitter?.name || 'submit'
-    // For demo purposes we just log/alert the values
-    console.log(action, form)
-    alert(`${action === 'login' ? 'Login' : 'Signup'} submitted:\n` + JSON.stringify(form, null, 2))
-  }
+  const [action,setAction] = useState('Login')
 
   return (
+    <>
     <div className="login-wrap">
-      <form className="login-form" onSubmit={handleSubmit}>
-        <h2 className="login-header">Welcome</h2>
+        <div className="login-header">{action === 'Login' ? 'Login' : 'Signup'}</div>
+        <div className="Inputs">
 
-        <input
-          className="login-input"
-          name="username"
-          value={form.username}
-          onChange={handleChange}
-          placeholder="Username"
-        />
+        {action === 'Login' ? <div className="input">
+            <input type="text" placeholder="Username" required />
+        </div> : ''}
 
-        <input
-          className="login-input"
-          name="email"
-          value={form.email}
-          onChange={handleChange}
-          placeholder="Email"
-        />
-
-        <input
-          className="login-input"
-          type="password"
-          name="password"
-          value={form.password}
-          onChange={handleChange}
-          placeholder="Password"
-        />
-
-        <div className="login-actions">
-          <button type="submit" name="login" className="btn login-btn">Login</button>
-          <button type="submit" name="signup" className="btn signup-btn">Signup</button>
+        <div className="input">
+            <input type="email" placeholder="Email" required />
         </div>
-      </form>
+
+         <div className="input">
+            <input type="password" placeholder="Password" required />
+        </div>
+        {action === 'Signup' ? <div className="input">
+            <input type="password" placeholder="Confirm Password" required />
+        </div> : ''}
+        {action === 'Signup' ? '':<div className="remember-me">Forgot password?</div>}
+        </div>
+        <div className="login-actions">
+          <div  className={action === 'Signup' ? 'btn' : 'btn active'} onClick={() => setAction('Login')}>Login</div>
+          <div className={action === 'Login' ? 'btn' : 'btn active'} onClick={() => setAction('Signup')}>Signup</div>
+        </div>
     </div>
+    </>
   )
 }
 
