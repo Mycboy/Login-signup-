@@ -4,6 +4,7 @@ import Dashboard from './component/Dashboard'
 import Shop from './component/shop'
 import Checkout from './component/checkout'
 import Tracking from './component/Tracking'
+import AdminDashboard from './Admin'
 import { API_BASE } from './api'
 
 const App = () => {
@@ -60,10 +61,21 @@ const App = () => {
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0)
 
   const handleAuthSuccess = (userData) => {
-    setUser(userData)
+    const normalizedUser = {
+      ...userData,
+      role: userData.role || 'user'
+    }
+
+    setUser(normalizedUser)
     setAuthToken(userData.token)
-    localStorage.setItem('pokevault-user', JSON.stringify(userData))
+    localStorage.setItem('pokevault-user', JSON.stringify(normalizedUser))
     localStorage.setItem('pokevault-token', userData.token)
+
+    if (normalizedUser.role === 'admin') {
+      setView('admin')
+      return
+    }
+
     setView('dashboard')
   }
 
@@ -160,6 +172,16 @@ const App = () => {
 
   if (view === 'login') {
     return <Login onAuthSuccess={handleAuthSuccess} />
+  }
+
+  if (view === 'admin') {
+    return (
+      <AdminDashboard
+        user={user}
+        token={authToken}
+        onLogout={handleLogout}
+      />
+    )
   }
 
   if (view === 'dashboard') {

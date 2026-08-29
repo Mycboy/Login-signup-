@@ -4,6 +4,7 @@ const cors = require('cors')
 const connectDB = require('./config/db')
 const authRoutes = require('./routes/authRoutes')
 const orderRoutes = require('./routes/orderRoutes')
+const adminRoutes = require('./routes/adminRoutes')
 
 const app = express()
 
@@ -12,14 +13,15 @@ app.use(express.json())
 
 connectDB()
 
-app.get("/", (req, res) => {
-    res.json({
-        message: "Backend is running successfully"
-    });
-});
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Backend is running successfully'
+  })
+})
 
 app.use('/api/auth', authRoutes)
 app.use('/api/orders', orderRoutes)
+app.use('/api/admin', adminRoutes)
 
 app.use((err, req, res, next) => {
   console.error(err)
