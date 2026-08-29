@@ -1,6 +1,16 @@
 import React from 'react'
 import './shop.css'
 
+const parsePrice = (value) => Number(String(value).replace(/[^\d.]/g, ''))
+const formatPrice = (value) =>
+  new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0
+  }).format(Number(value))
+
+const usdToInr = (amount) => Math.round(Number(amount) * 82)
+
 const baseImages = [
   'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?auto=format&fit=crop&w=900&q=80',
   'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=900&q=80',
@@ -136,7 +146,7 @@ const Shop = ({
   const season = seasonCatalog[seasonId] || seasonCatalog.kanto
 
   const total = cartItems.reduce((sum, item) => {
-    const value = Number(String(item.price).replace(/[$,]/g, ''))
+    const value = usdToInr(parsePrice(item.price))
     return sum + value * item.quantity
   }, 0)
 
@@ -166,7 +176,7 @@ const Shop = ({
                 <p className="card-detail">{card.detail}</p>
                 <div className="shop-meta">
                   <span>{card.stock} left</span>
-                  <strong>{card.price}</strong>
+                  <strong>{formatPrice(usdToInr(parsePrice(card.price)))}</strong>
                 </div>
                 <button className="buy-btn" onClick={() => onAddToCart(card)}>Buy Now</button>
               </div>
@@ -198,7 +208,7 @@ const Shop = ({
                         <span>{item.quantity}</span>
                         <button onClick={() => onUpdateQuantity(item.id, 1)}>+</button>
                       </div>
-                      <span className="cart-price">${(Number(String(item.price).replace(/[$,]/g, '')) * item.quantity).toFixed(2)}</span>
+                      <span className="cart-price">{formatPrice(usdToInr(parsePrice(item.price)) * item.quantity)}</span>
                       <button className="remove-item-btn" onClick={() => onRemoveFromCart(item.id)}>Remove</button>
                     </div>
                   </div>
@@ -207,7 +217,7 @@ const Shop = ({
 
               <div className="cart-total">
                 <span>Total</span>
-                <strong>${total.toFixed(2)}</strong>
+                <strong>{formatPrice(total)}</strong>
               </div>
 
               <button className="checkout-btn" onClick={onCheckout}>Checkout</button>
