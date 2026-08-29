@@ -19,7 +19,15 @@ const payments = [
   'Cash on Delivery'
 ]
 
-const Checkout = ({ cartItems = [], onBack, onUpdateQuantity, onRemoveFromCart, origin = 'shop' }) => {
+const Checkout = ({
+  cartItems = [],
+  onBack,
+  onUpdateQuantity,
+  onRemoveFromCart,
+  origin = 'shop',
+  onPlaceOrder,
+  onTrackOrder
+}) => {
   const [selectedPayment, setSelectedPayment] = useState('UPI')
   const [orderPlaced, setOrderPlaced] = useState(false)
   const [formData, setFormData] = useState({
@@ -70,7 +78,28 @@ const Checkout = ({ cartItems = [], onBack, onUpdateQuantity, onRemoveFromCart, 
   }
 
   const handlePlaceOrder = () => {
-    if (missingDetails) return
+    if (missingDetails || !onPlaceOrder) return
+
+    const orderPayload = {
+      id: `PKV-${Date.now()}`,
+      customerName: formData.fullName.trim(),
+      email: formData.email.trim(),
+      address: `${formData.address.trim()}, ${formData.city.trim()}, ${formData.zip.trim()}`,
+      city: formData.city.trim(),
+      zip: formData.zip.trim(),
+      paymentMethod: selectedPayment,
+      total,
+      items: cartItems.map((item) => ({
+        id: item.id,
+        name: item.name,
+        price: usdToInr(parsePrice(item.price)) * item.quantity,
+        quantity: item.quantity,
+        rarity: item.rarity,
+        image: item.image
+      }))
+    }
+
+    onPlaceOrder(orderPayload)
     setOrderPlaced(true)
   }
 
@@ -85,7 +114,10 @@ const Checkout = ({ cartItems = [], onBack, onUpdateQuantity, onRemoveFromCart, 
             <span>Total paid</span>
             <strong>{formatPrice(total)}</strong>
           </div>
-          <button className="checkout-btn" onClick={onBack}>Continue Shopping</button>
+          <div className="success-actions">
+            <button className="checkout-btn" onClick={onTrackOrder}>Track Order</button>
+            <button className="shop-btn secondary" onClick={onBack}>Continue Shopping</button>
+          </div>
         </div>
       </div>
     )
@@ -99,7 +131,12 @@ const Checkout = ({ cartItems = [], onBack, onUpdateQuantity, onRemoveFromCart, 
             <div className="shop-kicker">PokéVault</div>
             <h1>Checkout</h1>
           </div>
-          <button className="shop-btn secondary" onClick={onBack}>{backLabel}</button>
+          <div className="checkout-header-actions">
+            {onTrackOrder && (
+              <button className="shop-btn secondary" onClick={onTrackOrder}>Track Order</button>
+            )}
+            <button className="shop-btn secondary" onClick={onBack}>{backLabel}</button>
+          </div>
         </div>
 
         <div className="checkout-layout">

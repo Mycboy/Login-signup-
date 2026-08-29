@@ -1,14 +1,35 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Login from './component/Login'
 import Dashboard from './component/Dashboard'
 import Shop from './component/shop'
 import Checkout from './component/checkout'
+import Tracking from './component/Tracking'
+
+const STORAGE_KEY = 'pokevault-orders'
+
+const normalizeOrders = (value) => {
+  if (Array.isArray(value)) return value
+  if (value && typeof value === 'object') return [value]
+  return []
+}
 
 const App = () => {
   const [view, setView] = useState('login')
   const [selectedSeason, setSelectedSeason] = useState('kanto')
   const [cart, setCart] = useState([])
+  const [orders, setOrders] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      return saved ? normalizeOrders(JSON.parse(saved)) : []
+    } catch {
+      return []
+    }
+  })
   const [checkoutOrigin, setCheckoutOrigin] = useState('shop')
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(orders))
+  }, [orders])
 
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0)
 
@@ -62,6 +83,17 @@ const App = () => {
     setCart((currentCart) => currentCart.filter((item) => item.id !== id))
   }
 
+  const handlePlaceOrder = (orderData) => {
+    const orderToSave = {
+      ...orderData,
+      status: 'Confirmed',
+      createdAt: new Date().toISOString()
+    }
+
+    setOrders((currentOrders) => [orderToSave, ...normalizeOrders(currentOrders)])
+    setCart([])
+  }
+
   if (view === 'login') {
     return <Login onLogin={handleLogin} />
   }
@@ -72,7 +104,9 @@ const App = () => {
         onLogout={handleLogout}
         onSelectSeason={handleSelectSeason}
         onCheckout={() => handleOpenCheckout('dashboard')}
+        onTrackOrder={() => setView('tracking')}
         cartCount={cartCount}
+        hasOrders={orders.length > 0}
       />
     )
   }
@@ -85,8 +119,14 @@ const App = () => {
         onBack={() => setView(checkoutOrigin)}
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveFromCart={handleRemoveFromCart}
+        onPlaceOrder={handlePlaceOrder}
+        onTrackOrder={() => setView('tracking')}
       />
     )
+  }
+
+  if (view === 'tracking') {
+    return <Tracking orders={orders} onBack={() => setView(checkoutOrigin)} />
   }
 
   return (

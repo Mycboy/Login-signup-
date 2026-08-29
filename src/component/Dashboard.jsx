@@ -85,7 +85,7 @@ const products = {
   ]
 }
 
-const Dashboard = ({ onLogout, onSelectSeason, onCheckout, cartCount = 0 }) => {
+const Dashboard = ({ onLogout, onSelectSeason, onCheckout, onTrackOrder, cartCount = 0, hasOrders = false }) => {
   const [selectedSeason, setSelectedSeason] = useState('none')
 
   const activeSeason = useMemo(
@@ -118,6 +118,9 @@ const Dashboard = ({ onLogout, onSelectSeason, onCheckout, cartCount = 0 }) => {
 
           <div className="top-actions">
             <input className="search-box" placeholder="Search cards" />
+            {hasOrders && (
+              <button className="secondary-btn" onClick={onTrackOrder}>Track Order</button>
+            )}
             <button className="cta-btn" onClick={onCheckout}>Cart ({cartCount})</button>
             {onLogout && (
               <button className="logout-btn" onClick={onLogout}>Logout</button>
