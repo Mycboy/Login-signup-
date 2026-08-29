@@ -245,10 +245,14 @@
   min-height: 136px;
 }
 
-.season-card.active {
+.season-card:hover {
   border-color: rgba(255, 255, 255, 0.4);
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.25);
+  box-shadow: 0 0 18px rgba(251, 191, 36, 0.45), 0 12px 30px rgba(15, 23, 42, 0.25);
+}
+
+.season-card.active {
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .season-card .era {

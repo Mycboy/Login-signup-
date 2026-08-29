@@ -43,15 +43,20 @@ const products = {
   ]
 }
 
-const Dashboard = ({ onLogout }) => {
-  const [selectedSeason, setSelectedSeason] = useState('kanto')
+const Dashboard = ({ onLogout, onSelectSeason, cartCount = 0 }) => {
+  const [selectedSeason, setSelectedSeason] = useState('none')
 
   const activeSeason = useMemo(
     () => seasons.find((season) => season.id === selectedSeason) || seasons[0],
     [selectedSeason]
   )
 
-  const featuredCards = products[selectedSeason]
+  const featuredCards = products[selectedSeason] || products.kanto
+
+  const goToSeasonShop = (seasonId) => {
+    setSelectedSeason(seasonId)
+    if (onSelectSeason) onSelectSeason(seasonId)
+  }
 
   return (
     <div className="pokemon-dashboard">
@@ -71,7 +76,7 @@ const Dashboard = ({ onLogout }) => {
 
           <div className="top-actions">
             <input className="search-box" placeholder="Search cards" />
-            <button className="cta-btn">Cart (3)</button>
+            <button className="cta-btn">Cart ({cartCount})</button>
             {onLogout && (
               <button className="logout-btn" onClick={onLogout}>Logout</button>
             )}
@@ -87,7 +92,7 @@ const Dashboard = ({ onLogout }) => {
             </p>
 
             <div className="hero-buttons">
-              <button className="cta-btn">Shop Now</button>
+              <button className="cta-btn" onClick={() => goToSeasonShop(activeSeason.id)}>Shop Now</button>
               <button className="secondary-btn">View Collection</button>
             </div>
 
@@ -134,7 +139,7 @@ const Dashboard = ({ onLogout }) => {
                 key={season.id}
                 className={`season-card ${selectedSeason === season.id ? 'active' : ''}`}
                 style={{ background: selectedSeason === season.id ? `linear-gradient(135deg, ${season.accent}22, rgba(15,23,42,0.8))` : undefined }}
-                onClick={() => setSelectedSeason(season.id)}
+                onClick={() => goToSeasonShop(season.id)}
               >
                 <div className="era">{season.era}</div>
                 <h4>{season.name}</h4>
@@ -144,23 +149,7 @@ const Dashboard = ({ onLogout }) => {
           </div>
         </section>
 
-        <section className="products">
-          {featuredCards.map((card, index) => (
-            <div key={card.name} className="product-card">
-              <div className="product-art" style={{ background: `linear-gradient(135deg, ${activeSeason.accent}44, rgba(59,130,246,0.18))` }}>
-                {index % 2 === 0 ? '⚡' : index % 3 === 0 ? '🔥' : '🌟'}
-              </div>
-              <div className="product-body">
-                <div className="product-tag">{card.tag}</div>
-                <h4>{card.name}</h4>
-                <div className="product-meta">
-                  <span className="rarity">{card.rarity}</span>
-                  <span className="price">{card.price}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </section>
+       
       </div>
     </div>
   )
