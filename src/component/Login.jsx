@@ -3,13 +3,65 @@ import './Login.css'
 import email from './asset/email.png'
 import password from './asset/padlock.png'
 import username from './asset/user.png'
+import { API_BASE } from '../api'
 
-const Login = ({ onLogin }) => {
+const initialForm = {
+  name: '',
+  email: '',
+  password: '',
+  confirmPassword: ''
+}
+
+const Login = ({ onAuthSuccess }) => {
   const [action, setAction] = useState('Login')
+  const [formData, setFormData] = useState(initialForm)
+  const [error, setError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleSubmit = (e) => {
+  const handleChange = (field, value) => {
+    setFormData((current) => ({ ...current, [field]: value }))
+    setError('')
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (onLogin) onLogin()
+    setIsSubmitting(true)
+    setError('')
+
+    try {
+      const endpoint = action === 'Login' ? '/auth/login' : '/auth/signup'
+      const payload =
+        action === 'Login'
+          ? { email: formData.email, password: formData.password }
+          : {
+              name: formData.name,
+              email: formData.email,
+              password: formData.password,
+              confirmPassword: formData.confirmPassword
+            }
+
+      const response = await fetch(`${API_BASE}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Authentication failed')
+      }
+
+      if (onAuthSuccess) {
+        onAuthSuccess(data)
+      }
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -41,34 +93,59 @@ const Login = ({ onLogin }) => {
         </div>
 
         <form className="Inputs" onSubmit={handleSubmit}>
-          {action === 'Login' && (
+          {action === 'Signup' && (
             <div className="input">
               <img src={username} alt="" />
-              <input type="text" placeholder="Username" required />
+              <input
+                type="text"
+                placeholder="Name"
+                value={formData.name}
+                onChange={(e) => handleChange('name', e.target.value)}
+                required
+              />
             </div>
           )}
 
           <div className="input">
             <img src={email} alt="" />
-            <input type="email" placeholder="Email" required />
+            <input
+              type="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={(e) => handleChange('email', e.target.value)}
+              required
+            />
           </div>
 
           <div className="input">
             <img src={password} alt="" />
-            <input type="password" placeholder="Password" required />
+            <input
+              type="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={(e) => handleChange('password', e.target.value)}
+              required
+            />
           </div>
 
           {action === 'Signup' && (
             <div className="input">
               <img src={password} alt="" />
-              <input type="password" placeholder="Confirm Password" required />
+              <input
+                type="password"
+                placeholder="Confirm Password"
+                value={formData.confirmPassword}
+                onChange={(e) => handleChange('confirmPassword', e.target.value)}
+                required
+              />
             </div>
           )}
 
           {action === 'Signup' ? null : <div className="remember-me">Forgot password?</div>}
+          {error && <div className="error-message">{error}</div>}
 
-          <button type="submit" className="btn">
-            {action === 'Login' ? 'Login' : 'Signup'}
+          <button type="submit" className="btn" disabled={isSubmitting}>
+            {isSubmitting ? 'Please wait...' : action === 'Login' ? 'Login' : 'Signup'}
           </button>
         </form>
       </div>
