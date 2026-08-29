@@ -2,12 +2,54 @@ import React, { useMemo, useState } from 'react'
 import './Dashboard.css'
 
 const seasons = [
-  { id: 'kanto', name: 'Kanto', era: 'Gen 1', accent: '#ff6b6b', subtitle: 'Classic starters & Charizard legends' },
-  { id: 'johto', name: 'Johto', era: 'Gen 2', accent: '#ffa94d', subtitle: 'Golden era pulls and rare holo sets' },
-  { id: 'hoenn', name: 'Hoenn', era: 'Gen 3', accent: '#51cf66', subtitle: 'Ruby & Sapphire powerhouses' },
-  { id: 'sinnoh', name: 'Sinnoh', era: 'Gen 4', accent: '#74c0fc', subtitle: 'Diamond-era favorites and iconic chases' },
-  { id: 'unova', name: 'Unova', era: 'Gen 5', accent: '#b197fc', subtitle: 'Black & White collector staples' },
-  { id: 'kalos', name: 'Kalos', era: 'Gen 6', accent: '#ff8787', subtitle: 'Mega evolutions and premium finishes' }
+  {
+    id: 'kanto',
+    name: 'Kanto',
+    era: 'Gen 1',
+    accent: '#ff6b6b',
+    subtitle: 'Classic starters & Charizard legends',
+    image: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80'
+  },
+  {
+    id: 'johto',
+    name: 'Johto',
+    era: 'Gen 2',
+    accent: '#ffa94d',
+    subtitle: 'Golden era pulls and rare holo sets',
+    image: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?auto=format&fit=crop&w=900&q=80'
+  },
+  {
+    id: 'hoenn',
+    name: 'Hoenn',
+    era: 'Gen 3',
+    accent: '#51cf66',
+    subtitle: 'Ruby & Sapphire powerhouses',
+    image: 'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=900&q=80'
+  },
+  {
+    id: 'sinnoh',
+    name: 'Sinnoh',
+    era: 'Gen 4',
+    accent: '#74c0fc',
+    subtitle: 'Diamond-era favorites and iconic chases',
+    image: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=900&q=80'
+  },
+  {
+    id: 'unova',
+    name: 'Unova',
+    era: 'Gen 5',
+    accent: '#b197fc',
+    subtitle: 'Black & White collector staples',
+    image: 'https://images.unsplash.com/photo-1516321165247-4aa89a48be28?auto=format&fit=crop&w=900&q=80'
+  },
+  {
+    id: 'kalos',
+    name: 'Kalos',
+    era: 'Gen 6',
+    accent: '#ff8787',
+    subtitle: 'Mega evolutions and premium finishes',
+    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80'
+  }
 ]
 
 const products = {
@@ -43,7 +85,7 @@ const products = {
   ]
 }
 
-const Dashboard = ({ onLogout, onSelectSeason, cartCount = 0 }) => {
+const Dashboard = ({ onLogout, onSelectSeason, onCheckout, cartCount = 0 }) => {
   const [selectedSeason, setSelectedSeason] = useState('none')
 
   const activeSeason = useMemo(
@@ -76,7 +118,7 @@ const Dashboard = ({ onLogout, onSelectSeason, cartCount = 0 }) => {
 
           <div className="top-actions">
             <input className="search-box" placeholder="Search cards" />
-            <button className="cta-btn">Cart ({cartCount})</button>
+            <button className="cta-btn" onClick={onCheckout}>Cart ({cartCount})</button>
             {onLogout && (
               <button className="logout-btn" onClick={onLogout}>Logout</button>
             )}
@@ -141,9 +183,12 @@ const Dashboard = ({ onLogout, onSelectSeason, cartCount = 0 }) => {
                 style={{ background: selectedSeason === season.id ? `linear-gradient(135deg, ${season.accent}22, rgba(15,23,42,0.8))` : undefined }}
                 onClick={() => goToSeasonShop(season.id)}
               >
-                <div className="era">{season.era}</div>
-                <h4>{season.name}</h4>
-                <p>{season.subtitle}</p>
+                <img src={season.image} alt={season.name} className="season-card-image" />
+                <div className="season-card-body">
+                  <div className="era">{season.era}</div>
+                  <h4>{season.name}</h4>
+                  <p>{season.subtitle}</p>
+                </div>
               </div>
             ))}
           </div>
