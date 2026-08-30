@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import Login from './component/Login'
 import Dashboard from './component/Dashboard'
 import Shop from './component/shop'
+import Collection from './component/Collection'
 import Checkout from './component/checkout'
 import Tracking from './component/Tracking'
 import AdminDashboard from './Admin'
@@ -13,6 +14,8 @@ const App = () => {
   const [cart, setCart] = useState([])
   const [orders, setOrders] = useState([])
   const [checkoutOrigin, setCheckoutOrigin] = useState('shop')
+  const [trackOrigin, setTrackOrigin] = useState('shop')
+  const [collectionQuery, setCollectionQuery] = useState('')
   const [user, setUser] = useState(() => {
     try {
       const savedUser = localStorage.getItem('pokevault-user')
@@ -24,15 +27,20 @@ const App = () => {
   const [authToken, setAuthToken] = useState(() => localStorage.getItem('pokevault-token') || '')
 
   useEffect(() => {
-    if (authToken && user) {
-      setView('dashboard')
-    }
+    if (!authToken || !user) return
+
+    setView(user.role === 'admin' ? 'admin' : 'dashboard')
   }, [authToken, user])
 
   useEffect(() => {
     if (!authToken) {
       setOrders([])
       return
+    }
+
+    const normalizeOrder = (order) => {
+      const id = order?._id || order?.id
+      return { ...order, id, _id: id }
     }
 
     const fetchOrders = async () => {
@@ -48,7 +56,7 @@ const App = () => {
         }
 
         const data = await response.json()
-        setOrders(Array.isArray(data) ? data : [])
+        setOrders(Array.isArray(data) ? data.map(normalizeOrder) : [])
       } catch (error) {
         console.error(error)
         setOrders([])
@@ -95,6 +103,16 @@ const App = () => {
   const handleOpenCheckout = (origin = 'shop') => {
     setCheckoutOrigin(origin)
     setView('checkout')
+  }
+
+  const handleOpenCollection = (query = '') => {
+    setCollectionQuery(query)
+    setView('collection')
+  }
+
+  const handleTrackOrder = (origin = 'shop') => {
+    setTrackOrigin(origin)
+    setView('tracking')
   }
 
   const handleAddToCart = (card) => {
@@ -161,7 +179,13 @@ const App = () => {
       }
 
       const savedOrder = await response.json()
-      setOrders((currentOrders) => [savedOrder, ...currentOrders])
+      const normalizedOrder = {
+        ...savedOrder,
+        id: savedOrder._id || savedOrder.id,
+        _id: savedOrder._id || savedOrder.id
+      }
+
+      setOrders((currentOrders) => [normalizedOrder, ...currentOrders])
       setCart([])
       return true
     } catch (error) {
@@ -189,10 +213,23 @@ const App = () => {
       <Dashboard
         onLogout={handleLogout}
         onSelectSeason={handleSelectSeason}
+        onOpenCollection={handleOpenCollection}
         onCheckout={() => handleOpenCheckout('dashboard')}
-        onTrackOrder={() => setView('tracking')}
+        onTrackOrder={() => handleTrackOrder('shop')}
         cartCount={cartCount}
         hasOrders={orders.length > 0}
+      />
+    )
+  }
+
+  if (view === 'collection') {
+    return (
+      <Collection
+        query={collectionQuery}
+        onBack={() => setView('dashboard')}
+        onAddToCart={handleAddToCart}
+        onCheckout={() => handleOpenCheckout('shop')}
+        cartCount={cartCount}
       />
     )
   }
@@ -206,13 +243,13 @@ const App = () => {
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveFromCart={handleRemoveFromCart}
         onPlaceOrder={handlePlaceOrder}
-        onTrackOrder={() => setView('tracking')}
+        onTrackOrder={() => handleTrackOrder(checkoutOrigin)}
       />
     )
   }
 
   if (view === 'tracking') {
-    return <Tracking orders={orders} onBack={() => setView(checkoutOrigin)} />
+    return <Tracking orders={orders} onBack={() => setView(trackOrigin)} />
   }
 
   return (

@@ -85,8 +85,9 @@ const products = {
   ]
 }
 
-const Dashboard = ({ onLogout, onSelectSeason, onCheckout, onTrackOrder, cartCount = 0, hasOrders = false }) => {
-  const [selectedSeason, setSelectedSeason] = useState('none')
+const Dashboard = ({ onLogout, onSelectSeason, onOpenCollection, onCheckout, onTrackOrder, cartCount = 0, hasOrders = false }) => {
+  const [selectedSeason, setSelectedSeason] = useState('kanto')
+  const [searchTerm, setSearchTerm] = useState('')
 
   const activeSeason = useMemo(
     () => seasons.find((season) => season.id === selectedSeason) || seasons[0],
@@ -94,6 +95,13 @@ const Dashboard = ({ onLogout, onSelectSeason, onCheckout, onTrackOrder, cartCou
   )
 
   const featuredCards = products[selectedSeason] || products.kanto
+
+  const handleNavClick = (targetId) => {
+    const target = document.getElementById(targetId)
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
 
   const goToSeasonShop = (seasonId) => {
     setSelectedSeason(seasonId)
@@ -110,14 +118,25 @@ const Dashboard = ({ onLogout, onSelectSeason, onCheckout, onTrackOrder, cartCou
           </div>
 
           <nav className="nav">
-            <span>Shop</span>
-            <span>Collections</span>
-            <span>Seasons</span>
-            <span>Deals</span>
+            <button type="button" onClick={() => handleNavClick('season-picker')}>Shop</button>
+            <button type="button" onClick={() => onOpenCollection(searchTerm)}>Collections</button>
+            <button type="button" onClick={() => handleNavClick('season-picker')}>Seasons</button>
+            <button type="button" onClick={() => handleNavClick('hero-section')}>Deals</button>
           </nav>
 
           <div className="top-actions">
-            <input className="search-box" placeholder="Search cards" />
+            <input
+              className="search-box"
+              placeholder="Search cards"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  onOpenCollection(searchTerm)
+                }
+              }}
+            />
+            <button type="button" className="secondary-btn" onClick={() => onOpenCollection(searchTerm)}>Search</button>
             {hasOrders && (
               <button className="secondary-btn" onClick={onTrackOrder}>Track Order</button>
             )}
@@ -128,8 +147,8 @@ const Dashboard = ({ onLogout, onSelectSeason, onCheckout, onTrackOrder, cartCou
           </div>
         </header>
 
-        <section className="hero">
-          <div className="hero-panel">
+        <section className="hero" id="hero-section">
+          <div className="hero-panel" id="collections">
             <div className="eyebrow">Elite trading cards</div>
             <h1>Choose your favorite Pokémon season.</h1>
             <p className="hero-text">
@@ -161,18 +180,20 @@ const Dashboard = ({ onLogout, onSelectSeason, onCheckout, onTrackOrder, cartCou
             <div>
               <div className="mini-label">Current drop</div>
               <h2>{activeSeason.name}</h2>
+              <img src={activeSeason.image} alt={activeSeason.name} className="current-drop-image" />
             </div>
 
             <div className="price-box">
               <div className="mini-label">Featured case</div>
-              <div className="value">$349</div>
+              <div className="value">₹{selectedSeason === 'kanto' ? 3499 : selectedSeason === 'johto' ? 2899 : 3199}</div>
             </div>
 
             <div className="featured-copy">{activeSeason.subtitle}</div>
+            <button className="cta-btn full-width" onClick={() => goToSeasonShop(activeSeason.id)}>Open {activeSeason.name}</button>
           </div>
         </section>
 
-        <section className="season-picker">
+        <section className="season-picker" id="season-picker">
           <div className="section-header">
             <h3>Choose a season</h3>
             <button className="secondary-btn">View all</button>

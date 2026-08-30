@@ -7,6 +7,16 @@ const AdminDashboard = ({ user, token, onLogout }) => {
   const [products, setProducts] = useState([])
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
+  const [productForm, setProductForm] = useState({
+    name: '',
+    price: '',
+    category: '',
+    rarity: 'Common',
+    image: '',
+    stock: '',
+    description: ''
+  })
+  const [editingProductId, setEditingProductId] = useState(null)
 
   const fetchAdminData = async () => {
     try {
@@ -90,6 +100,75 @@ const AdminDashboard = ({ user, token, onLogout }) => {
     fetchAdminData()
   }
 
+  const resetProductForm = () => {
+    setProductForm({
+      name: '',
+      price: '',
+      category: '',
+      rarity: 'Common',
+      image: '',
+      stock: '',
+      description: ''
+    })
+    setEditingProductId(null)
+  }
+
+  const handleProductSubmit = async (event) => {
+    event.preventDefault()
+
+    const payload = {
+      ...productForm,
+      price: Number(productForm.price),
+      stock: Number(productForm.stock)
+    }
+
+    const method = editingProductId ? 'PUT' : 'POST'
+    const url = editingProductId
+      ? `${API_BASE}/admin/products/${editingProductId}`
+      : `${API_BASE}/admin/products`
+
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
+    })
+
+    if (!response.ok) {
+      console.error('Product save failed')
+      return
+    }
+
+    resetProductForm()
+    fetchAdminData()
+  }
+
+  const handleEditProduct = (product) => {
+    setEditingProductId(product._id)
+    setProductForm({
+      name: product.name,
+      price: String(product.price),
+      category: product.category,
+      rarity: product.rarity,
+      image: product.image || '',
+      stock: String(product.stock),
+      description: product.description || ''
+    })
+  }
+
+  const handleDeleteProduct = async (productId) => {
+    await fetch(`${API_BASE}/admin/products/${productId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    fetchAdminData()
+  }
+
   const handleStatusChange = async (orderId, status) => {
     await fetch(`${API_BASE}/admin/orders/${orderId}/status`, {
       method: 'PUT',
@@ -151,13 +230,87 @@ const AdminDashboard = ({ user, token, onLogout }) => {
 
         <div style={{ background: '#111827', borderRadius: 18, padding: 20 }}>
           <h3>Products</h3>
-          {products.map((p) => (
-            <div key={p._id} style={{ borderBottom: '1px solid #334155', padding: '10px 0' }}>
-              <div style={{ fontWeight: 700 }}>{p.name}</div>
-              <small style={{ color: '#94a3b8' }}>{p.category} • {p.rarity}</small>
-              <div style={{ color: '#fbbf24', marginTop: 6 }}>{formatPrice(p.price)}</div>
+
+          <form onSubmit={handleProductSubmit} style={{ display: 'grid', gap: 10, marginBottom: 18 }}>
+            <input
+              placeholder="Product name"
+              value={productForm.name}
+              onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
+              style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff' }}
+            />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <input
+                placeholder="Price"
+                type="number"
+                value={productForm.price}
+                onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
+                style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff' }}
+              />
+              <input
+                placeholder="Stock"
+                type="number"
+                value={productForm.stock}
+                onChange={(e) => setProductForm({ ...productForm, stock: e.target.value })}
+                style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff' }}
+              />
             </div>
-          ))}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <input
+                placeholder="Category"
+                value={productForm.category}
+                onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
+                style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff' }}
+              />
+              <input
+                placeholder="Rarity"
+                value={productForm.rarity}
+                onChange={(e) => setProductForm({ ...productForm, rarity: e.target.value })}
+                style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff' }}
+              />
+            </div>
+            <input
+              placeholder="Image URL"
+              value={productForm.image}
+              onChange={(e) => setProductForm({ ...productForm, image: e.target.value })}
+              style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff' }}
+            />
+            <textarea
+              placeholder="Description"
+              value={productForm.description}
+              onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
+              style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff', minHeight: 80 }}
+            />
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button type="submit" style={{ flex: 1, padding: '10px 12px', borderRadius: 10, border: 'none', background: '#f59e0b', color: '#111827', fontWeight: 700 }}>
+                {editingProductId ? 'Update Product' : 'Add Product'}
+              </button>
+              {editingProductId && (
+                <button type="button" onClick={resetProductForm} style={{ padding: '10px 12px', borderRadius: 10, border: '1px solid #334155', background: 'transparent', color: '#fff' }}>
+                  Cancel
+                </button>
+              )}
+            </div>
+          </form>
+
+          {products.length === 0 ? (
+            <p style={{ color: '#94a3b8' }}>No products found yet.</p>
+          ) : (
+            products.map((p) => (
+              <div key={p._id} style={{ borderBottom: '1px solid #334155', padding: '12px 0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontWeight: 700 }}>{p.name}</div>
+                    <small style={{ color: '#94a3b8' }}>{p.category} • {p.rarity}</small>
+                    <div style={{ color: '#fbbf24', marginTop: 6 }}>{formatPrice(p.price)}</div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button onClick={() => handleEditProduct(p)} style={{ padding: '8px 10px', borderRadius: 8, border: 'none', background: '#1d4ed8', color: '#fff' }}>Edit</button>
+                    <button onClick={() => handleDeleteProduct(p._id)} style={{ padding: '8px 10px', borderRadius: 8, border: 'none', background: '#dc2626', color: '#fff' }}>Remove</button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 

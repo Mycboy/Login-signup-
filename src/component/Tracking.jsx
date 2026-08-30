@@ -9,7 +9,8 @@ const formatPrice = (value) =>
   }).format(Number(value))
 
 const Tracking = ({ orders = [], onBack }) => {
-  const [selectedOrderId, setSelectedOrderId] = useState(orders[0]?.id ?? null)
+  const initialOrderId = orders[0]?.id || orders[0]?._id || null
+  const [selectedOrderId, setSelectedOrderId] = useState(initialOrderId)
 
   useEffect(() => {
     if (!orders.length) {
@@ -17,13 +18,27 @@ const Tracking = ({ orders = [], onBack }) => {
       return
     }
 
-    if (!orders.some((order) => order.id === selectedOrderId)) {
-      setSelectedOrderId(orders[0].id)
+    const validOrderId = orders[0]?.id || orders[0]?._id
+    if (!orders.some((order) => (order.id || order._id) === selectedOrderId)) {
+      setSelectedOrderId(validOrderId)
     }
   }, [orders, selectedOrderId])
 
-  const selectedOrder = orders.find((order) => order.id === selectedOrderId) || orders[0]
-  const previousOrders = orders.filter((order) => order.id !== selectedOrder?.id)
+  const selectedOrder =
+    orders.find((order) => (order.id || order._id) === selectedOrderId) || orders[0]
+  const previousOrders = orders.filter((order) => (order.id || order._id) !== (selectedOrder?.id || selectedOrder?._id))
+
+  const trackingSteps = [
+    { label: 'Confirmed', text: 'Payment approved and packed.' },
+    { label: 'Packed', text: 'Items are packed and ready.' },
+    { label: 'Shipped', text: 'Parcel is moving to your address.' },
+    { label: 'Delivered', text: 'Order will arrive at your doorstep.' }
+  ]
+
+  const currentStepIndex = Math.max(
+    0,
+    trackingSteps.findIndex((step) => step.label === selectedOrder?.status)
+  )
 
   return (
     <div className="tracking-page">
@@ -56,34 +71,15 @@ const Tracking = ({ orders = [], onBack }) => {
               </div>
 
               <div className="tracking-steps">
-                <div className="step active">
-                  <span>1</span>
-                  <div>
-                    <strong>Order Confirmed</strong>
-                    <p>Payment approved and packed.</p>
+                {trackingSteps.map((step, index) => (
+                  <div key={step.label} className={`step ${index <= currentStepIndex ? 'active' : ''}`}>
+                    <span>{index + 1}</span>
+                    <div>
+                      <strong>{step.label}</strong>
+                      <p>{step.text}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="step">
-                  <span>2</span>
-                  <div>
-                    <strong>Shipped</strong>
-                    <p>Parcel is moving to your address.</p>
-                  </div>
-                </div>
-                <div className="step">
-                  <span>3</span>
-                  <div>
-                    <strong>Out for Delivery</strong>
-                    <p>Courier is on the way.</p>
-                  </div>
-                </div>
-                <div className="step">
-                  <span>4</span>
-                  <div>
-                    <strong>Delivered</strong>
-                    <p>Order will arrive at your doorstep.</p>
-                  </div>
-                </div>
+                ))}
               </div>
 
               <div className="tracking-details">
@@ -108,7 +104,7 @@ const Tracking = ({ orders = [], onBack }) => {
               <div className="tracking-items">
                 <h3>Items</h3>
                 {selectedOrder.items.map((item) => (
-                  <div className="tracked-item" key={`${selectedOrder.id}-${item.id}-${item.quantity}`}>
+                  <div className="tracked-item" key={`${selectedOrder?.id || selectedOrder?._id}-${item.id}-${item.quantity}`}>
                     <span>{item.name}</span>
                     <span>{item.quantity}x</span>
                     <strong>{formatPrice(Number(item.price) * item.quantity)}</strong>
@@ -127,9 +123,9 @@ const Tracking = ({ orders = [], onBack }) => {
                     type="button"
                     className="history-row"
                     key={order.id || `${order.createdAt}-${order.total}`}
-                    onClick={() => setSelectedOrderId(order.id)}
+                    onClick={() => setSelectedOrderId(order.id || order._id)}
                   >
-                    <span>#{order.id}</span>
+                    <span>#{order.id || order._id}</span>
                     <span>{order.paymentMethod}</span>
                     <strong>{formatPrice(order.total)}</strong>
                   </button>

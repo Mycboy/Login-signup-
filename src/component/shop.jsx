@@ -34,7 +34,7 @@ const baseImages = [
   'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=900&q=80'
 ]
 
-const seasonCatalog = {
+export const seasonCatalog = {
   kanto: {
     name: 'Kanto',
     description: 'Classic starters, iconic legends, and the original Poké card era.',
