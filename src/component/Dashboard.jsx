@@ -8,7 +8,7 @@ const seasons = [
     era: 'Gen 1',
     accent: '#ff6b6b',
     subtitle: 'Classic starters & Charizard legends',
-    image: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80'
+    image: 'https://a0.cdn.japantravel.com/photo/72070-244854/1440x960%21/tokyo-pok%C3%A9park-kanto-opening-sooner-than-expected-244854.webp'
   },
   {
     id: 'johto',
@@ -16,7 +16,7 @@ const seasons = [
     era: 'Gen 2',
     accent: '#ffa94d',
     subtitle: 'Golden era pulls and rare holo sets',
-    image: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?auto=format&fit=crop&w=900&q=80'
+    image: 'https://i.redd.it/pkg81djwe30e1.png'
   },
   {
     id: 'hoenn',
@@ -24,7 +24,7 @@ const seasons = [
     era: 'Gen 3',
     accent: '#51cf66',
     subtitle: 'Ruby & Sapphire powerhouses',
-    image: 'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=900&q=80'
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYCXGau_3X0gdKdWIHXqWPYBi_sW9lY7iQr-lDMkOUTbVMEmxuIqEw8e8&s=10'
   },
   {
     id: 'sinnoh',
@@ -32,7 +32,7 @@ const seasons = [
     era: 'Gen 4',
     accent: '#74c0fc',
     subtitle: 'Diamond-era favorites and iconic chases',
-    image: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=900&q=80'
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQE8rqiIo1e2YZLEjUYHh5yJ6bmk_SyOC6T2RA99GOeYQ&s=10'
   },
   {
     id: 'unova',
@@ -40,7 +40,7 @@ const seasons = [
     era: 'Gen 5',
     accent: '#b197fc',
     subtitle: 'Black & White collector staples',
-    image: 'https://images.unsplash.com/photo-1516321165247-4aa89a48be28?auto=format&fit=crop&w=900&q=80'
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3G-R7jo-Rf5QAoHWXtoOmX7Sl4fVHvyD74e_kteGeYS4EfStgtj-8nLXL&s=10'
   },
   {
     id: 'kalos',
@@ -48,7 +48,7 @@ const seasons = [
     era: 'Gen 6',
     accent: '#ff8787',
     subtitle: 'Mega evolutions and premium finishes',
-    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80'
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtsDkdpnZpx2uczFajG1wAOXJSV_UkGsSuvM3Gfc-R7Zn1wpr4fLb3WjA&s=10'
   }
 ]
 

@@ -13,6 +13,7 @@ const App = () => {
   const [selectedSeason, setSelectedSeason] = useState('kanto')
   const [cart, setCart] = useState([])
   const [orders, setOrders] = useState([])
+  const [products, setProducts] = useState([])
   const [checkoutOrigin, setCheckoutOrigin] = useState('shop')
   const [trackOrigin, setTrackOrigin] = useState('shop')
   const [collectionQuery, setCollectionQuery] = useState('')
@@ -31,6 +32,25 @@ const App = () => {
 
     setView(user.role === 'admin' ? 'admin' : 'dashboard')
   }, [authToken, user])
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(`${API_BASE}/products`)
+        if (!response.ok) {
+          throw new Error('Failed to load products')
+        }
+
+        const data = await response.json()
+        setProducts(Array.isArray(data) ? data : [])
+      } catch (error) {
+        console.error(error)
+        setProducts([])
+      }
+    }
+
+    fetchProducts()
+  }, [])
 
   useEffect(() => {
     if (!authToken) {
@@ -65,6 +85,20 @@ const App = () => {
 
     fetchOrders()
   }, [authToken])
+
+  const productsBySeason = products.reduce((acc, product) => {
+    const seasonKey = (product.season || product.category || 'kanto').toLowerCase()
+    if (!acc[seasonKey]) acc[seasonKey] = []
+    acc[seasonKey].push({
+      ...product,
+      id: product._id || product.id,
+      image: product.image || 'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80',
+      detail: product.description || 'Premium Pokémon card',
+      price: product.price,
+      stock: product.stock ?? 1
+    })
+    return acc
+  }, {})
 
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0)
 
@@ -226,6 +260,7 @@ const App = () => {
     return (
       <Collection
         query={collectionQuery}
+        cards={products}
         onBack={() => setView('dashboard')}
         onAddToCart={handleAddToCart}
         onCheckout={() => handleOpenCheckout('shop')}
@@ -255,6 +290,7 @@ const App = () => {
   return (
     <Shop
       seasonId={selectedSeason}
+      cards={productsBySeason[selectedSeason] || []}
       onBack={() => setView('dashboard')}
       cartCount={cartCount}
       cartItems={cart}

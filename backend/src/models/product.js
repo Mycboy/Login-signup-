@@ -17,6 +17,11 @@ const productSchema = new mongoose.Schema(
       required: true,
       trim: true
     },
+    season: {
+      type: String,
+      trim: true,
+      default: ''
+    },
     rarity: {
       type: String,
       default: 'Common'

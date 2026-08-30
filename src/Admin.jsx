@@ -11,6 +11,7 @@ const AdminDashboard = ({ user, token, onLogout }) => {
     name: '',
     price: '',
     category: '',
+    season: 'kanto',
     rarity: 'Common',
     image: '',
     stock: '',
@@ -105,6 +106,7 @@ const AdminDashboard = ({ user, token, onLogout }) => {
       name: '',
       price: '',
       category: '',
+      season: 'kanto',
       rarity: 'Common',
       image: '',
       stock: '',
@@ -119,7 +121,8 @@ const AdminDashboard = ({ user, token, onLogout }) => {
     const payload = {
       ...productForm,
       price: Number(productForm.price),
-      stock: Number(productForm.stock)
+      stock: Number(productForm.stock),
+      season: productForm.season || productForm.category || 'kanto'
     }
 
     const method = editingProductId ? 'PUT' : 'POST'
@@ -151,6 +154,7 @@ const AdminDashboard = ({ user, token, onLogout }) => {
       name: product.name,
       price: String(product.price),
       category: product.category,
+      season: product.season || product.category || 'kanto',
       rarity: product.rarity,
       image: product.image || '',
       stock: String(product.stock),
@@ -261,13 +265,25 @@ const AdminDashboard = ({ user, token, onLogout }) => {
                 onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
                 style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff' }}
               />
-              <input
-                placeholder="Rarity"
-                value={productForm.rarity}
-                onChange={(e) => setProductForm({ ...productForm, rarity: e.target.value })}
+              <select
+                value={productForm.season}
+                onChange={(e) => setProductForm({ ...productForm, season: e.target.value })}
                 style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff' }}
-              />
+              >
+                <option value="kanto">Kanto</option>
+                <option value="johto">Johto</option>
+                <option value="hoenn">Hoenn</option>
+                <option value="sinnoh">Sinnoh</option>
+                <option value="unova">Unova</option>
+                <option value="kalos">Kalos</option>
+              </select>
             </div>
+            <input
+              placeholder="Rarity"
+              value={productForm.rarity}
+              onChange={(e) => setProductForm({ ...productForm, rarity: e.target.value })}
+              style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff' }}
+            />
             <input
               placeholder="Image URL"
               value={productForm.image}
@@ -302,6 +318,7 @@ const AdminDashboard = ({ user, token, onLogout }) => {
                     <div style={{ fontWeight: 700 }}>{p.name}</div>
                     <small style={{ color: '#94a3b8' }}>{p.category} • {p.rarity}</small>
                     <div style={{ color: '#fbbf24', marginTop: 6 }}>{formatPrice(p.price)}</div>
+                    <small style={{ color: '#94a3b8', display: 'block', marginTop: 4 }}>{p.season || p.category || 'kanto'}</small>
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button onClick={() => handleEditProduct(p)} style={{ padding: '8px 10px', borderRadius: 8, border: 'none', background: '#1d4ed8', color: '#fff' }}>Edit</button>

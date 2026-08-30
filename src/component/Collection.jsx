@@ -19,22 +19,24 @@ const allCards = Object.values(seasonCatalog)
     }))
   )
 
-const Collection = ({ query = '', onBack, onAddToCart, onCheckout, cartCount = 0 }) => {
+const Collection = ({ query = '', cards = [], onBack, onAddToCart, onCheckout, cartCount = 0 }) => {
   const [search, setSearch] = useState(query)
+
+  const items = cards.length ? cards : allCards
 
   const filteredCards = useMemo(() => {
     const term = search.trim().toLowerCase()
 
-    if (!term) return allCards
+    if (!term) return items
 
-    return allCards.filter((card) => {
+    return items.filter((card) => {
       return (
-        card.name.toLowerCase().includes(term) ||
-        card.rarity.toLowerCase().includes(term) ||
-        card.season.toLowerCase().includes(term)
+        (card.name || '').toLowerCase().includes(term) ||
+        (card.rarity || '').toLowerCase().includes(term) ||
+        (card.season || '').toLowerCase().includes(term)
       )
     })
-  }, [search])
+  }, [items, search])
 
   return (
     <div className="shop-page">
@@ -62,17 +64,17 @@ const Collection = ({ query = '', onBack, onAddToCart, onCheckout, cartCount = 0
       <div className="shop-layout">
         <div className="shop-grid">
           {filteredCards.map((card) => (
-            <div key={`${card.season}-${card.name}`} className="shop-card">
+            <div key={`${card.season || card.category || 'season'}-${card.name}`} className="shop-card">
               <img className="shop-card-image" src={card.image} alt={card.name} />
               <div className="shop-body">
-                <div className="shop-tag">{card.season}</div>
+                <div className="shop-tag">{card.season || card.category || 'Collection'}</div>
                 <h3>{card.name}</h3>
-                <p className="card-detail">{card.detail}</p>
+                <p className="card-detail">{card.detail || card.description || 'Premium Pokémon card'}</p>
                 <div className="shop-meta">
                   <span>{card.rarity}</span>
-                  <strong>{formatPrice(Number(card.price.replace(/[$]/g, '')) * 82)}</strong>
+                  <strong>{formatPrice(Number(String(card.price).replace(/[^\d.]/g, '')) * (String(card.price).includes('₹') ? 1 : 82))}</strong>
                 </div>
-                <button className="buy-btn" onClick={() => onAddToCart(card)}>Add to Cart</button>
+                <button className="buy-btn" onClick={() => onAddToCart({ ...card, id: card.id || `${card.name}-${card.rarity}` })}>Add to Cart</button>
               </div>
             </div>
           ))}
