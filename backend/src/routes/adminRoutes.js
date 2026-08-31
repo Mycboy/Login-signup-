@@ -116,4 +116,13 @@ router.put('/orders/:id/status', protect, adminOnly, async (req, res) => {
   }
 })
 
+router.delete('/orders/:id', protect, adminOnly, async (req, res) => {
+  try {
+    await Order.findByIdAndDelete(req.params.id)
+    res.json({ message: 'Order deleted' })
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+})
+
 module.exports = router

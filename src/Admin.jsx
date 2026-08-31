@@ -101,6 +101,17 @@ const AdminDashboard = ({ user, token, onLogout, onProductsChanged }) => {
     fetchAdminData()
   }
 
+  const handleDeleteOrder = async (orderId) => {
+    await fetch(`${API_BASE}/admin/orders/${orderId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    fetchAdminData()
+  }
+
   const resetProductForm = () => {
     setProductForm({
       name: '',
@@ -341,7 +352,7 @@ const AdminDashboard = ({ user, token, onLogout, onProductsChanged }) => {
                     <option value="user">User</option>
                     <option value="admin">Admin</option>
                   </select>
-                  <button onClick={() => handleDeleteUser(u._id)}>Delete</button>
+                  <button onClick={() => handleDeleteUser(u._id)}>Remove User</button>
                 </div>
               </div>
             ))}
@@ -357,12 +368,15 @@ const AdminDashboard = ({ user, token, onLogout, onProductsChanged }) => {
                     <div style={{ color: '#94a3b8' }}>{order.customerName} • {order.email}</div>
                   </div>
                   <div>{formatPrice(order.total)}</div>
-                  <select value={order.status} onChange={(e) => handleStatusChange(order._id, e.target.value)}>
-                    <option value="Confirmed">Confirmed</option>
-                    <option value="Packed">Packed</option>
-                    <option value="Shipped">Shipped</option>
-                    <option value="Delivered">Delivered</option>
-                  </select>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <select value={order.status} onChange={(e) => handleStatusChange(order._id, e.target.value)}>
+                      <option value="Confirmed">Confirmed</option>
+                      <option value="Packed">Packed</option>
+                      <option value="Shipped">Shipped</option>
+                      <option value="Delivered">Delivered</option>
+                    </select>
+                    <button onClick={() => handleDeleteOrder(order._id)} style={{ background: '#dc2626', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 10px' }}>Remove Order</button>
+                  </div>
                 </div>
               </div>
             ))}
