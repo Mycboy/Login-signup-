@@ -91,6 +91,7 @@ const Checkout = ({
       total,
       items: cartItems.map((item) => ({
         id: item.id,
+        productId: item.productId || item._id || item.id,
         name: item.name,
         price: usdToInr(parsePrice(item.price)) * item.quantity,
         quantity: item.quantity,

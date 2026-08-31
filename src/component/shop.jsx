@@ -106,7 +106,13 @@ const Shop = ({
                   <span>{card.stock ?? 1} left</span>
                   <strong>{formatPrice(toInrAmount(card.price))}</strong>
                 </div>
-                <button className="buy-btn" onClick={() => onAddToCart({ ...card, id: card.id || `${card.name}-${card.rarity}` })}>Buy Now</button>
+                <button
+                  className="buy-btn"
+                  disabled={(Number(card.stock ?? 0) <= 0)}
+                  onClick={() => onAddToCart({ ...card, id: card.id || `${card.name}-${card.rarity}` })}
+                >
+                  {Number(card.stock ?? 0) <= 0 ? 'Out of Stock' : 'Buy Now'}
+                </button>
               </div>
             </div>
           ))}

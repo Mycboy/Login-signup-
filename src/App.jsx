@@ -150,14 +150,20 @@ const App = () => {
   }
 
   const handleAddToCart = (card) => {
-    const cardId = `${card.name}-${card.rarity}`
+    const cardId = card._id || card.id || `${card.name}-${card.rarity}`
+    const availableStock = Number(card.stock ?? 0)
 
     setCart((currentCart) => {
       const existingItem = currentCart.find((item) => item.id === cardId)
+      const nextQuantity = (existingItem?.quantity || 0) + 1
+
+      if (existingItem && nextQuantity > availableStock) {
+        return currentCart
+      }
 
       if (existingItem) {
         return currentCart.map((item) =>
-          item.id === cardId ? { ...item, quantity: item.quantity + 1 } : item
+          item.id === cardId ? { ...item, quantity: Math.min(availableStock, item.quantity + 1) } : item
         )
       }
 
@@ -166,6 +172,8 @@ const App = () => {
         {
           ...card,
           id: cardId,
+          productId: card._id || card.id || cardId,
+          stock: availableStock,
           quantity: 1
         }
       ]
@@ -175,9 +183,18 @@ const App = () => {
   const handleUpdateQuantity = (id, change) => {
     setCart((currentCart) =>
       currentCart
-        .map((item) =>
-          item.id === id ? { ...item, quantity: Math.max(0, item.quantity + change) } : item
-        )
+        .map((item) => {
+          if (item.id !== id) return item
+
+          const availableStock = Number(item.stock ?? 0)
+          const nextQuantity = item.quantity + change
+
+          if (change > 0) {
+            return { ...item, quantity: Math.min(availableStock, Math.max(0, nextQuantity)) }
+          }
+
+          return { ...item, quantity: Math.max(0, nextQuantity) }
+        })
         .filter((item) => item.quantity > 0)
     )
   }
@@ -196,7 +213,12 @@ const App = () => {
         ...orderData,
         customerName: user?.name || orderData.customerName,
         email: user?.email || orderData.email,
-        status: 'Confirmed'
+        status: 'Confirmed',
+        items: orderData.items.map((item) => ({
+          ...item,
+          productId: item.productId || item.id,
+          id: item.productId || item.id
+        }))
       }
 
       const response = await fetch(`${API_BASE}/orders`, {
@@ -209,7 +231,8 @@ const App = () => {
       })
 
       if (!response.ok) {
-        throw new Error('Order submit failed')
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.message || 'Order submit failed')
       }
 
       const savedOrder = await response.json()
@@ -221,6 +244,7 @@ const App = () => {
 
       setOrders((currentOrders) => [normalizedOrder, ...currentOrders])
       setCart([])
+      await fetchProducts()
       return true
     } catch (error) {
       console.error(error)

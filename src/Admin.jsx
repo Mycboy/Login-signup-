@@ -218,30 +218,42 @@ const AdminDashboard = ({ user, token, onLogout, onProductsChanged }) => {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 24 }}>
         <div style={{ background: '#111827', borderRadius: 18, padding: 20 }}>
-          <h3>Users</h3>
-          {users.map((u) => (
-            <div key={u._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #334155', padding: '12px 0' }}>
-              <div>
-                <div>{u.name}</div>
-                <small style={{ color: '#94a3b8' }}>{u.email}</small>
-              </div>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <select value={u.role || 'user'} onChange={(e) => handleRoleChange(u._id, e.target.value)}>
-                  <option value="user">User</option>
-                  <option value="admin">Admin</option>
-                </select>
-                <button onClick={() => handleDeleteUser(u._id)}>Delete</button>
-              </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <h3 style={{ margin: 0 }}>Inventory</h3>
+            <span style={{ color: '#94a3b8' }}>{products.length} items</span>
+          </div>
+
+          {products.length === 0 ? (
+            <p style={{ color: '#94a3b8', margin: 0 }}>No products found yet.</p>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
+              {products.map((p) => (
+                <div key={p._id} style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: 16, padding: 14 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center', marginBottom: 8 }}>
+                    <strong style={{ fontSize: 15 }}>{p.name}</strong>
+                    <span style={{ background: '#1f2937', color: '#fbbf24', borderRadius: 999, padding: '4px 8px', fontSize: 12 }}>
+                      {Number(p.stock || 0)} left
+                    </span>
+                  </div>
+                  <div style={{ color: '#94a3b8', fontSize: 12, marginBottom: 8 }}>{p.category} • {p.rarity}</div>
+                  <div style={{ color: '#fbbf24', fontWeight: 700, marginBottom: 10 }}>{formatPrice(p.price)}</div>
+                  <div style={{ color: '#cbd5e1', fontSize: 12, marginBottom: 14 }}>{p.description || 'No description added yet.'}</div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button onClick={() => handleEditProduct(p)} style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: 'none', background: '#1d4ed8', color: '#fff' }}>Edit</button>
+                    <button onClick={() => handleDeleteProduct(p._id)} style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: 'none', background: '#dc2626', color: '#fff' }}>Remove</button>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
 
         <div style={{ background: '#111827', borderRadius: 18, padding: 20 }}>
-          <h3>Products</h3>
+          <h3 style={{ marginTop: 0 }}>Add Product</h3>
 
-          <form onSubmit={handleProductSubmit} style={{ display: 'grid', gap: 10, marginBottom: 18 }}>
+          <form onSubmit={handleProductSubmit} style={{ display: 'grid', gap: 10 }}>
             <input
               placeholder="Product name"
               value={productForm.name}
@@ -313,28 +325,26 @@ const AdminDashboard = ({ user, token, onLogout, onProductsChanged }) => {
               )}
             </div>
           </form>
-
-          {products.length === 0 ? (
-            <p style={{ color: '#94a3b8' }}>No products found yet.</p>
-          ) : (
-            products.map((p) => (
-              <div key={p._id} style={{ borderBottom: '1px solid #334155', padding: '12px 0' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
-                  <div>
-                    <div style={{ fontWeight: 700 }}>{p.name}</div>
-                    <small style={{ color: '#94a3b8' }}>{p.category} • {p.rarity}</small>
-                    <div style={{ color: '#fbbf24', marginTop: 6 }}>{formatPrice(p.price)}</div>
-                    <small style={{ color: '#94a3b8', display: 'block', marginTop: 4 }}>{p.season || p.category || 'kanto'}</small>
-                  </div>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button onClick={() => handleEditProduct(p)} style={{ padding: '8px 10px', borderRadius: 8, border: 'none', background: '#1d4ed8', color: '#fff' }}>Edit</button>
-                    <button onClick={() => handleDeleteProduct(p._id)} style={{ padding: '8px 10px', borderRadius: 8, border: 'none', background: '#dc2626', color: '#fff' }}>Remove</button>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
         </div>
+      </div>
+
+      <div style={{ background: '#111827', borderRadius: 18, padding: 20, marginTop: 24 }}>
+        <h3>Users</h3>
+        {users.map((u) => (
+          <div key={u._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #334155', padding: '12px 0' }}>
+            <div>
+              <div>{u.name}</div>
+              <small style={{ color: '#94a3b8' }}>{u.email}</small>
+            </div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <select value={u.role || 'user'} onChange={(e) => handleRoleChange(u._id, e.target.value)}>
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+              <button onClick={() => handleDeleteUser(u._id)}>Delete</button>
+            </div>
+          </div>
+        ))}
       </div>
 
       <div style={{ background: '#111827', borderRadius: 18, padding: 20, marginTop: 24 }}>
