@@ -250,122 +250,124 @@ const AdminDashboard = ({ user, token, onLogout, onProductsChanged }) => {
           )}
         </div>
 
-        <div style={{ background: '#111827', borderRadius: 18, padding: 20 }}>
-          <h3 style={{ marginTop: 0 }}>Add Product</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div style={{ background: '#111827', borderRadius: 18, padding: 20 }}>
+            <h3 style={{ marginTop: 0 }}>Add Product</h3>
 
-          <form onSubmit={handleProductSubmit} style={{ display: 'grid', gap: 10 }}>
-            <input
-              placeholder="Product name"
-              value={productForm.name}
-              onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
-              style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff' }}
-            />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <form onSubmit={handleProductSubmit} style={{ display: 'grid', gap: 10 }}>
               <input
-                placeholder="Price"
-                type="number"
-                value={productForm.price}
-                onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
+                placeholder="Product name"
+                value={productForm.name}
+                onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
                 style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff' }}
               />
-              <input
-                placeholder="Stock"
-                type="number"
-                value={productForm.stock}
-                onChange={(e) => setProductForm({ ...productForm, stock: e.target.value })}
-                style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff' }}
-              />
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              <input
-                placeholder="Category"
-                value={productForm.category}
-                onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
-                style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff' }}
-              />
-              <select
-                value={productForm.season}
-                onChange={(e) => setProductForm({ ...productForm, season: e.target.value })}
-                style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff' }}
-              >
-                <option value="kanto">Kanto</option>
-                <option value="johto">Johto</option>
-                <option value="hoenn">Hoenn</option>
-                <option value="sinnoh">Sinnoh</option>
-                <option value="unova">Unova</option>
-                <option value="kalos">Kalos</option>
-              </select>
-            </div>
-            <input
-              placeholder="Rarity"
-              value={productForm.rarity}
-              onChange={(e) => setProductForm({ ...productForm, rarity: e.target.value })}
-              style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff' }}
-            />
-            <input
-              placeholder="Image URL"
-              value={productForm.image}
-              onChange={(e) => setProductForm({ ...productForm, image: e.target.value })}
-              style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff' }}
-            />
-            <textarea
-              placeholder="Description"
-              value={productForm.description}
-              onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
-              style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff', minHeight: 80 }}
-            />
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button type="submit" style={{ flex: 1, padding: '10px 12px', borderRadius: 10, border: 'none', background: '#f59e0b', color: '#111827', fontWeight: 700 }}>
-                {editingProductId ? 'Update Product' : 'Add Product'}
-              </button>
-              {editingProductId && (
-                <button type="button" onClick={resetProductForm} style={{ padding: '10px 12px', borderRadius: 10, border: '1px solid #334155', background: 'transparent', color: '#fff' }}>
-                  Cancel
-                </button>
-              )}
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <div style={{ background: '#111827', borderRadius: 18, padding: 20, marginTop: 24 }}>
-        <h3>Users</h3>
-        {users.map((u) => (
-          <div key={u._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #334155', padding: '12px 0' }}>
-            <div>
-              <div>{u.name}</div>
-              <small style={{ color: '#94a3b8' }}>{u.email}</small>
-            </div>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <select value={u.role || 'user'} onChange={(e) => handleRoleChange(u._id, e.target.value)}>
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
-              </select>
-              <button onClick={() => handleDeleteUser(u._id)}>Delete</button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div style={{ background: '#111827', borderRadius: 18, padding: 20, marginTop: 24 }}>
-        <h3>Orders</h3>
-        {orders.map((order) => (
-          <div key={order._id} style={{ borderBottom: '1px solid #334155', padding: '12px 0' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-              <div>
-                <strong>#{order._id.slice(-6)}</strong>
-                <div style={{ color: '#94a3b8' }}>{order.customerName} • {order.email}</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <input
+                  placeholder="Price"
+                  type="number"
+                  value={productForm.price}
+                  onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
+                  style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff' }}
+                />
+                <input
+                  placeholder="Stock"
+                  type="number"
+                  value={productForm.stock}
+                  onChange={(e) => setProductForm({ ...productForm, stock: e.target.value })}
+                  style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff' }}
+                />
               </div>
-              <div>{formatPrice(order.total)}</div>
-              <select value={order.status} onChange={(e) => handleStatusChange(order._id, e.target.value)}>
-                <option value="Confirmed">Confirmed</option>
-                <option value="Packed">Packed</option>
-                <option value="Shipped">Shipped</option>
-                <option value="Delivered">Delivered</option>
-              </select>
-            </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <input
+                  placeholder="Category"
+                  value={productForm.category}
+                  onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
+                  style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff' }}
+                />
+                <select
+                  value={productForm.season}
+                  onChange={(e) => setProductForm({ ...productForm, season: e.target.value })}
+                  style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff' }}
+                >
+                  <option value="kanto">Kanto</option>
+                  <option value="johto">Johto</option>
+                  <option value="hoenn">Hoenn</option>
+                  <option value="sinnoh">Sinnoh</option>
+                  <option value="unova">Unova</option>
+                  <option value="kalos">Kalos</option>
+                </select>
+              </div>
+              <input
+                placeholder="Rarity"
+                value={productForm.rarity}
+                onChange={(e) => setProductForm({ ...productForm, rarity: e.target.value })}
+                style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff' }}
+              />
+              <input
+                placeholder="Image URL"
+                value={productForm.image}
+                onChange={(e) => setProductForm({ ...productForm, image: e.target.value })}
+                style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff' }}
+              />
+              <textarea
+                placeholder="Description"
+                value={productForm.description}
+                onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
+                style={{ padding: 10, borderRadius: 10, border: '1px solid #334155', background: '#0f172a', color: '#fff', minHeight: 80 }}
+              />
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button type="submit" style={{ flex: 1, padding: '10px 12px', borderRadius: 10, border: 'none', background: '#f59e0b', color: '#111827', fontWeight: 700 }}>
+                  {editingProductId ? 'Update Product' : 'Add Product'}
+                </button>
+                {editingProductId && (
+                  <button type="button" onClick={resetProductForm} style={{ padding: '10px 12px', borderRadius: 10, border: '1px solid #334155', background: 'transparent', color: '#fff' }}>
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </form>
           </div>
-        ))}
+
+          <div style={{ background: '#111827', borderRadius: 18, padding: 20 }}>
+            <h3>Users</h3>
+            {users.map((u) => (
+              <div key={u._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #334155', padding: '12px 0' }}>
+                <div>
+                  <div>{u.name}</div>
+                  <small style={{ color: '#94a3b8' }}>{u.email}</small>
+                </div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <select value={u.role || 'user'} onChange={(e) => handleRoleChange(u._id, e.target.value)}>
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                  <button onClick={() => handleDeleteUser(u._id)}>Delete</button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ background: '#111827', borderRadius: 18, padding: 20 }}>
+            <h3>Orders</h3>
+            {orders.map((order) => (
+              <div key={order._id} style={{ borderBottom: '1px solid #334155', padding: '12px 0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                  <div>
+                    <strong>#{order._id.slice(-6)}</strong>
+                    <div style={{ color: '#94a3b8' }}>{order.customerName} • {order.email}</div>
+                  </div>
+                  <div>{formatPrice(order.total)}</div>
+                  <select value={order.status} onChange={(e) => handleStatusChange(order._id, e.target.value)}>
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="Packed">Packed</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Delivered">Delivered</option>
+                  </select>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )

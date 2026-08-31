@@ -1,15 +1,17 @@
 import React from 'react'
 import './shop.css'
 
-const parsePrice = (value) => Number(String(value).replace(/[^\d.]/g, ''))
+const normalizePrice = (value) => {
+  const numericValue = Number(String(value ?? '').replace(/[^\d.]/g, ''))
+  return Number.isFinite(numericValue) ? numericValue : 0
+}
+
 const formatPrice = (value) =>
   new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
     maximumFractionDigits: 0
-  }).format(Number(value))
-
-const usdToInr = (amount) => Math.round(Number(amount) * 82)
+  }).format(Number(value || 0))
 
 
 export const seasonCatalog = {
@@ -66,12 +68,7 @@ const Shop = ({
   const season = seasonCatalog[seasonId] || seasonCatalog.kanto
   const seasonCards = cards.length ? cards : (seasonCatalog[seasonId]?.cards || seasonCatalog.kanto.cards)
 
-  const toInrAmount = (value) => {
-    if (typeof value === 'number') return value
-    const num = Number(String(value).replace(/[^\d.]/g, ''))
-    if (Number.isNaN(num)) return 0
-    return String(value).includes('₹') ? num : Math.round(num * 82)
-  }
+  const toInrAmount = (value) => normalizePrice(value)
 
   const total = cartItems.reduce((sum, item) => {
     const value = toInrAmount(item.price)

@@ -6,10 +6,12 @@ const formatPrice = (value) =>
     style: 'currency',
     currency: 'INR',
     maximumFractionDigits: 0
-  }).format(Number(value))
+  }).format(Number(value || 0))
 
-const parsePrice = (value) => Number(String(value).replace(/[^\d.]/g, ''))
-const usdToInr = (amount) => Math.round(Number(amount) * 82)
+const normalizePrice = (value) => {
+  const numericValue = Number(String(value ?? '').replace(/[^\d.]/g, ''))
+  return Number.isFinite(numericValue) ? numericValue : 0
+}
 
 const payments = [
   'UPI',
@@ -46,7 +48,7 @@ const Checkout = ({
 
   const subtotal = useMemo(() => {
     return cartItems.reduce((sum, item) => {
-      const itemPrice = usdToInr(parsePrice(item.price))
+      const itemPrice = normalizePrice(item.price)
       return sum + itemPrice * item.quantity
     }, 0)
   }, [cartItems])
@@ -93,7 +95,7 @@ const Checkout = ({
         id: item.id,
         productId: item.productId || item._id || item.id,
         name: item.name,
-        price: usdToInr(parsePrice(item.price)) * item.quantity,
+        price: normalizePrice(item.price),
         quantity: item.quantity,
         rarity: item.rarity,
         image: item.image

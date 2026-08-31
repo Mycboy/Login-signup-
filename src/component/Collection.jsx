@@ -8,7 +8,10 @@ const formatPrice = (value) =>
     maximumFractionDigits: 0
   }).format(Number(value))
 
-const parsePrice = (value) => Number(String(value).replace(/[^\d.]/g, ''))
+const normalizePrice = (value) => {
+  const numericValue = Number(String(value ?? '').replace(/[^\d.]/g, ''))
+  return Number.isFinite(numericValue) ? numericValue : 0
+}
 
 const allCards = Object.values(seasonCatalog)
   .flatMap((season) =>
@@ -72,7 +75,7 @@ const Collection = ({ query = '', cards = [], onBack, onAddToCart, onCheckout, c
                 <p className="card-detail">{card.detail || card.description || 'Premium Pokémon card'}</p>
                 <div className="shop-meta">
                   <span>{card.rarity}</span>
-                  <strong>{formatPrice(Number(String(card.price).replace(/[^\d.]/g, '')) * (String(card.price).includes('₹') ? 1 : 82))}</strong>
+                  <strong>{formatPrice(normalizePrice(card.price))}</strong>
                 </div>
                 <button className="buy-btn" onClick={() => onAddToCart({ ...card, id: card.id || `${card.name}-${card.rarity}` })}>Add to Cart</button>
               </div>
