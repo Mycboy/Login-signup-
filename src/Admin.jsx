@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { API_BASE } from './api'
 
-const AdminDashboard = ({ user, token, onLogout }) => {
+const AdminDashboard = ({ user, token, onLogout, onProductsChanged }) => {
   const [overview, setOverview] = useState({ totalUsers: 0, totalProducts: 0, totalOrders: 0, revenue: 0 })
   const [users, setUsers] = useState([])
   const [products, setProducts] = useState([])
@@ -146,6 +146,9 @@ const AdminDashboard = ({ user, token, onLogout }) => {
 
     resetProductForm()
     fetchAdminData()
+    if (onProductsChanged) {
+      await onProductsChanged()
+    }
   }
 
   const handleEditProduct = (product) => {
@@ -171,6 +174,9 @@ const AdminDashboard = ({ user, token, onLogout }) => {
     })
 
     fetchAdminData()
+    if (onProductsChanged) {
+      await onProductsChanged()
+    }
   }
 
   const handleStatusChange = async (orderId, status) => {

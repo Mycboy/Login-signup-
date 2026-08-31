@@ -33,24 +33,24 @@ const App = () => {
     setView(user.role === 'admin' ? 'admin' : 'dashboard')
   }, [authToken, user])
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch(`${API_BASE}/products`)
-        if (!response.ok) {
-          throw new Error('Failed to load products')
-        }
-
-        const data = await response.json()
-        setProducts(Array.isArray(data) ? data : [])
-      } catch (error) {
-        console.error(error)
-        setProducts([])
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/products`)
+      if (!response.ok) {
+        throw new Error('Failed to load products')
       }
-    }
 
+      const data = await response.json()
+      setProducts(Array.isArray(data) ? data : [])
+    } catch (error) {
+      console.error(error)
+      setProducts([])
+    }
+  }
+
+  useEffect(() => {
     fetchProducts()
-  }, [])
+  }, [authToken, user])
 
   useEffect(() => {
     if (!authToken) {
@@ -238,6 +238,7 @@ const App = () => {
         user={user}
         token={authToken}
         onLogout={handleLogout}
+        onProductsChanged={fetchProducts}
       />
     )
   }
