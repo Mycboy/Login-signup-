@@ -32,6 +32,8 @@ const Checkout = ({
 }) => {
   const [selectedPayment, setSelectedPayment] = useState('UPI')
   const [orderPlaced, setOrderPlaced] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [orderError, setOrderError] = useState('')
   const [formData, setFormData] = useState({
     fullName: 'Ash Ketchum',
     email: 'ash@pokemail.com',
@@ -79,31 +81,44 @@ const Checkout = ({
     setFormData((current) => ({ ...current, [field]: value }))
   }
 
-  const handlePlaceOrder = () => {
-    if (missingDetails || !onPlaceOrder) return
+  const handlePlaceOrder = async () => {
+    if (missingDetails || !onPlaceOrder || isSubmitting) return
 
-    const orderPayload = {
-      id: `PKV-${Date.now()}`,
-      customerName: formData.fullName.trim(),
-      email: formData.email.trim(),
-      address: `${formData.address.trim()}, ${formData.city.trim()}, ${formData.zip.trim()}`,
-      city: formData.city.trim(),
-      zip: formData.zip.trim(),
-      paymentMethod: selectedPayment,
-      total,
-      items: cartItems.map((item) => ({
-        id: item.id,
-        productId: item.productId || item._id || item.id,
-        name: item.name,
-        price: normalizePrice(item.price),
-        quantity: item.quantity,
-        rarity: item.rarity,
-        image: item.image
-      }))
+    setIsSubmitting(true)
+    setOrderError('')
+
+    try {
+      const orderPayload = {
+        id: `PKV-${Date.now()}`,
+        customerName: formData.fullName.trim(),
+        email: formData.email.trim(),
+        address: `${formData.address.trim()}, ${formData.city.trim()}, ${formData.zip.trim()}`,
+        city: formData.city.trim(),
+        zip: formData.zip.trim(),
+        paymentMethod: selectedPayment,
+        total,
+        items: cartItems.map((item) => ({
+          id: item.id,
+          productId: item.productId || item._id || item.id,
+          name: item.name,
+          price: normalizePrice(item.price),
+          quantity: item.quantity,
+          rarity: item.rarity,
+          image: item.image
+        }))
+      }
+
+      const success = await onPlaceOrder(orderPayload)
+      if (success) {
+        setOrderPlaced(true)
+      } else {
+        setOrderError('Failed to place order. Please check your network and stock availability.')
+      }
+    } catch (err) {
+      setOrderError(err.message || 'An error occurred while placing your order.')
+    } finally {
+      setIsSubmitting(false)
     }
-
-    onPlaceOrder(orderPayload)
-    setOrderPlaced(true)
   }
 
   if (orderPlaced) {
@@ -300,9 +315,14 @@ const Checkout = ({
                   <strong>{formatPrice(total)}</strong>
                 </div>
 
-                <button className="checkout-btn" disabled={missingDetails} onClick={handlePlaceOrder}>
-                  {missingDetails ? 'Complete Details to Place Order' : 'Place Order'}
+                <button className="checkout-btn" disabled={missingDetails || isSubmitting} onClick={handlePlaceOrder}>
+                  {isSubmitting ? 'Placing Order...' : missingDetails ? 'Complete Details to Place Order' : 'Place Order'}
                 </button>
+                {orderError && (
+                  <div style={{ color: '#ef4444', marginTop: 12, textAlign: 'center', fontSize: '0.9rem', fontWeight: 600 }}>
+                    {orderError}
+                  </div>
+                )}
               </>
             )}
           </aside>

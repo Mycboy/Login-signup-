@@ -52,39 +52,6 @@ const seasons = [
   }
 ]
 
-const products = {
-  kanto: [
-    { name: 'Charizard Holo', price: '$189', rarity: 'Ultra Rare', tag: 'Best Seller' },
-    { name: 'Blastoise PSA', price: '$145', rarity: 'Mint Grade', tag: 'Featured' },
-    { name: 'Pikachu Illustrator', price: '$560', rarity: 'Museum Piece', tag: 'Vault' }
-  ],
-  johto: [
-    { name: 'Machamp Reverse', price: '$94', rarity: 'Holo Reverse', tag: 'Popular' },
-    { name: 'Typhlosion 1st Ed', price: '$120', rarity: 'Collector', tag: 'Hot' },
-    { name: 'Gyarados Gold Star', price: '$210', rarity: 'Gold Star', tag: 'Rare' }
-  ],
-  hoenn: [
-    { name: 'Sceptile EX', price: '$76', rarity: 'EX', tag: 'Trending' },
-    { name: 'Rayquaza Delta', price: '$118', rarity: 'Rare', tag: 'Fresh Stock' },
-    { name: 'Deoxys Prism', price: '$132', rarity: 'Prism', tag: 'Collector' }
-  ],
-  sinnoh: [
-    { name: 'Dialga Gx', price: '$98', rarity: 'GX', tag: 'Strong Pull' },
-    { name: 'Palkia Vstar', price: '$89', rarity: 'VSTAR', tag: 'Popular' },
-    { name: 'Lucario Platinum', price: '$114', rarity: 'Platinum', tag: 'Premium' }
-  ],
-  unova: [
-    { name: 'Reshiram B/W', price: '$82', rarity: 'Rare', tag: 'New' },
-    { name: 'Zoroark NXD', price: '$70', rarity: 'NXD', tag: 'Classic' },
-    { name: 'Kyurem Dragon', price: '$104', rarity: 'Collector', tag: 'Top Pick' }
-  ],
-  kalos: [
-    { name: 'Mega Gengar', price: '$130', rarity: 'Mega', tag: 'Hot' },
-    { name: 'Sylveon EX', price: '$75', rarity: 'EX', tag: 'Fan Favorite' },
-    { name: 'Greninja Break', price: '$88', rarity: 'Break', tag: 'Fresh' }
-  ]
-}
-
 const Dashboard = ({ onLogout, onSelectSeason, onOpenCollection, onCheckout, onTrackOrder, cartCount = 0, hasOrders = false }) => {
   const [selectedSeason, setSelectedSeason] = useState('kanto')
   const [searchTerm, setSearchTerm] = useState('')
@@ -93,8 +60,6 @@ const Dashboard = ({ onLogout, onSelectSeason, onOpenCollection, onCheckout, onT
     () => seasons.find((season) => season.id === selectedSeason) || seasons[0],
     [selectedSeason]
   )
-
-  const featuredCards = products[selectedSeason] || products.kanto
 
   const handleNavClick = (targetId) => {
     const target = document.getElementById(targetId)
@@ -157,7 +122,7 @@ const Dashboard = ({ onLogout, onSelectSeason, onOpenCollection, onCheckout, onT
 
             <div className="hero-buttons">
               <button className="cta-btn" onClick={() => goToSeasonShop(activeSeason.id)}>Shop Now</button>
-              <button className="secondary-btn">View Collection</button>
+              <button className="secondary-btn" onClick={() => onOpenCollection('')}>View Collection</button>
             </div>
 
             <div className="stats">
@@ -196,7 +161,7 @@ const Dashboard = ({ onLogout, onSelectSeason, onOpenCollection, onCheckout, onT
         <section className="season-picker" id="season-picker">
           <div className="section-header">
             <h3>Choose a season</h3>
-            <button className="secondary-btn">View all</button>
+            <button className="secondary-btn" onClick={() => handleNavClick('season-picker')}>View all</button>
           </div>
 
           <div className="season-list">

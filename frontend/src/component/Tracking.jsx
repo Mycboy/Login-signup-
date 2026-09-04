@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import './Tracking.css'
 
 const formatPrice = (value) =>
@@ -9,24 +9,16 @@ const formatPrice = (value) =>
   }).format(Number(value))
 
 const Tracking = ({ orders = [], onBack }) => {
-  const initialOrderId = orders[0]?.id || orders[0]?._id || null
-  const [selectedOrderId, setSelectedOrderId] = useState(initialOrderId)
-
-  useEffect(() => {
-    if (!orders.length) {
-      setSelectedOrderId(null)
-      return
-    }
-
-    const validOrderId = orders[0]?.id || orders[0]?._id
-    if (!orders.some((order) => (order.id || order._id) === selectedOrderId)) {
-      setSelectedOrderId(validOrderId)
-    }
-  }, [orders, selectedOrderId])
+  const [selectedOrderId, setSelectedOrderId] = useState(null)
 
   const selectedOrder =
-    orders.find((order) => (order.id || order._id) === selectedOrderId) || orders[0]
-  const previousOrders = orders.filter((order) => (order.id || order._id) !== (selectedOrder?.id || selectedOrder?._id))
+    (selectedOrderId && orders.find((order) => (order.id || order._id) === selectedOrderId)) ||
+    orders[0] ||
+    null
+
+  const previousOrders = orders.filter(
+    (order) => (order.id || order._id) !== (selectedOrder?.id || selectedOrder?._id)
+  )
 
   const trackingSteps = [
     { label: 'Confirmed', text: 'Payment approved and packed.' },
@@ -62,7 +54,7 @@ const Tracking = ({ orders = [], onBack }) => {
               <div className="tracking-summary">
                 <div>
                   <span className="label">Order ID</span>
-                  <strong>#{selectedOrder.id}</strong>
+                  <strong>#{selectedOrder.orderNumber || selectedOrder.id || selectedOrder._id}</strong>
                 </div>
                 <div>
                   <span className="label">Status</span>
@@ -125,7 +117,7 @@ const Tracking = ({ orders = [], onBack }) => {
                     key={order.id || `${order.createdAt}-${order.total}`}
                     onClick={() => setSelectedOrderId(order.id || order._id)}
                   >
-                    <span>#{order.id || order._id}</span>
+                    <span>#{order.orderNumber || order.id || order._id}</span>
                     <span>{order.paymentMethod}</span>
                     <strong>{formatPrice(order.total)}</strong>
                   </button>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { API_BASE } from './api'
 
 const AdminDashboard = ({ user, token, onLogout, onProductsChanged }) => {
@@ -19,7 +19,12 @@ const AdminDashboard = ({ user, token, onLogout, onProductsChanged }) => {
   })
   const [editingProductId, setEditingProductId] = useState(null)
 
-  const fetchAdminData = async () => {
+  const fetchAdminData = useCallback(async () => {
+    if (!token) {
+      setLoading(false)
+      return
+    }
+
     try {
       const [overviewRes, usersRes, productsRes, ordersRes] = await Promise.all([
         fetch(`${API_BASE}/admin/overview`, {
@@ -54,11 +59,20 @@ const AdminDashboard = ({ user, token, onLogout, onProductsChanged }) => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [token])
 
   useEffect(() => {
-    fetchAdminData()
-  }, [token])
+    let ignore = false
+    const init = async () => {
+      if (!ignore) {
+        await fetchAdminData()
+      }
+    }
+    init()
+    return () => {
+      ignore = true
+    }
+  }, [fetchAdminData])
 
   const formatPrice = (value) =>
     new Intl.NumberFormat('en-IN', {
@@ -133,6 +147,7 @@ const AdminDashboard = ({ user, token, onLogout, onProductsChanged }) => {
       ...productForm,
       price: Number(productForm.price),
       stock: Number(productForm.stock),
+      category: productForm.category.trim() || productForm.season || 'kanto',
       season: productForm.season || productForm.category || 'kanto'
     }
 
@@ -364,7 +379,7 @@ const AdminDashboard = ({ user, token, onLogout, onProductsChanged }) => {
               <div key={order._id} style={{ borderBottom: '1px solid #334155', padding: '12px 0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                   <div>
-                    <strong>#{order._id.slice(-6)}</strong>
+                    <strong>#{order.orderNumber || (order._id || order.id || '').slice(-6)}</strong>
                     <div style={{ color: '#94a3b8' }}>{order.customerName} • {order.email}</div>
                   </div>
                   <div>{formatPrice(order.total)}</div>

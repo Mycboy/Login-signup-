@@ -1,4 +1,5 @@
 const Product = require('./models/product')
+const User = require('./models/user')
 
 const defaultProducts = [
   {
@@ -625,4 +626,42 @@ const seedProducts = async () => {
   }
 }
 
-module.exports = { defaultProducts, seedProducts }
+const seedAdmin = async () => {
+  try {
+    const existingAdmin = await User.findOne({ role: 'admin' })
+    if (!existingAdmin) {
+      const adminEmail = process.env.ADMIN_EMAIL || 'admin@pokevault.com'
+      const adminPassword = process.env.ADMIN_PASSWORD || 'Admin@12345'
+      const adminUser = await User.create({
+        name: 'PokéVault Admin',
+        email: adminEmail.toLowerCase().trim(),
+        password: adminPassword,
+        role: 'admin'
+      })
+      console.log(`Default admin created: ${adminUser.email} / ${adminPassword}`)
+    }
+  } catch (error) {
+    console.error('Admin seed failed:', error.message)
+  }
+}
+
+module.exports = { defaultProducts, seedProducts, seedAdmin }
+
+if (require.main === module) {
+  require('dotenv').config()
+  const mongoose = require('mongoose')
+  const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/pokevault'
+  mongoose.connect(mongoUri)
+    .then(async () => {
+      console.log('Connected to MongoDB for seeding...')
+      await seedProducts()
+      await seedAdmin()
+      await mongoose.disconnect()
+      console.log('Seeding finished successfully.')
+      process.exit(0)
+    })
+    .catch((err) => {
+      console.error('Seeding script failed:', err.message)
+      process.exit(1)
+    })
+}

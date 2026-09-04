@@ -7,7 +7,7 @@ const generateToken = (user) => {
       id: user._id,
       role: user.role || 'user'
     },
-    process.env.JWT_SECRET,
+    process.env.JWT_SECRET || 'pokevault-super-secret-key',
     { expiresIn: '7d' }
   )
 }
@@ -24,12 +24,13 @@ const signup = async (req, res) => {
       return res.status(400).json({ message: 'Passwords do not match' })
     }
 
-    const existingUser = await User.findOne({ email })
+    const normalizedEmail = String(email).toLowerCase().trim()
+    const existingUser = await User.findOne({ email: normalizedEmail })
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' })
     }
 
-    const user = await User.create({ name, email, password })
+    const user = await User.create({ name: String(name).trim(), email: normalizedEmail, password })
 
     res.status(201).json({
       _id: user._id,
@@ -47,7 +48,12 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body
 
-    const user = await User.findOne({ email })
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' })
+    }
+
+    const normalizedEmail = String(email).toLowerCase().trim()
+    const user = await User.findOne({ email: normalizedEmail })
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password' })
     }

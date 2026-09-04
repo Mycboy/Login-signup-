@@ -1,5 +1,6 @@
 import React from 'react'
 import './shop.css'
+import { seasonCatalog } from '../constants/seasonCatalog'
 
 const normalizePrice = (value) => {
   const numericValue = Number(String(value ?? '').replace(/[^\d.]/g, ''))
@@ -12,47 +13,6 @@ const formatPrice = (value) =>
     currency: 'INR',
     maximumFractionDigits: 0
   }).format(Number(value || 0))
-
-
-export const seasonCatalog = {
-  kanto: {
-    name: 'Kanto',
-    description: 'Classic starters, iconic legends, and the original Poké card era.',
-    cards: [
-     
-    ]
-  },
-  johto: {
-    name: 'Johto',
-    description: 'Golden-era pulls with bold holo finishes and legendary chases.',
-    cards: [
-    ]
-  },
-  hoenn: {
-    name: 'Hoenn',
-    description: 'Ruby and Sapphire favorites with dynamic battle power and style.',
-    cards: [
-    ]
-  },
-  sinnoh: {
-    name: 'Sinnoh',
-    description: 'Diamond-era icons and fan-favorite card legends from the Platinum run.',
-    cards: [
-    ]
-  },
-  unova: {
-    name: 'Unova',
-    description: 'A modern collector lane with stylish sets and rare Black & White favorites.',
-    cards: [
-    ]
-  },
-  kalos: {
-    name: 'Kalos',
-    description: 'Mega Evolutions, sleek designs, and high-pressure collector cards.',
-    cards: [
-    ]
-  }
-}
 
 const Shop = ({
   seasonId = 'kanto',

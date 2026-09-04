@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Login from './component/Login'
 import Dashboard from './component/Dashboard'
 import Shop from './component/shop'
@@ -9,14 +9,6 @@ import AdminDashboard from './Admin'
 import { API_BASE } from './api'
 
 const App = () => {
-  const [view, setView] = useState('login')
-  const [selectedSeason, setSelectedSeason] = useState('kanto')
-  const [cart, setCart] = useState([])
-  const [orders, setOrders] = useState([])
-  const [products, setProducts] = useState([])
-  const [checkoutOrigin, setCheckoutOrigin] = useState('shop')
-  const [trackOrigin, setTrackOrigin] = useState('shop')
-  const [collectionQuery, setCollectionQuery] = useState('')
   const [user, setUser] = useState(() => {
     try {
       const savedUser = localStorage.getItem('pokevault-user')
@@ -27,13 +19,27 @@ const App = () => {
   })
   const [authToken, setAuthToken] = useState(() => localStorage.getItem('pokevault-token') || '')
 
-  useEffect(() => {
-    if (!authToken || !user) return
-
-    setView(user.role === 'admin' ? 'admin' : 'dashboard')
-  }, [authToken, user])
-
-  const fetchProducts = async () => {
+  const [view, setView] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem('pokevault-user')
+      const token = localStorage.getItem('pokevault-token')
+      if (token && savedUser) {
+        const parsed = JSON.parse(savedUser)
+        return parsed?.role === 'admin' ? 'admin' : 'dashboard'
+      }
+    } catch {
+      // fallback to login
+    }
+    return 'login'
+  })
+  const [selectedSeason, setSelectedSeason] = useState('kanto')
+  const [cart, setCart] = useState([])
+  const [orders, setOrders] = useState([])
+  const [products, setProducts] = useState([])
+  const [checkoutOrigin, setCheckoutOrigin] = useState('shop')
+  const [trackOrigin, setTrackOrigin] = useState('shop')
+  const [collectionQuery, setCollectionQuery] = useState('')
+  const fetchProducts = useCallback(async () => {
     try {
       const response = await fetch(`${API_BASE}/products`)
       if (!response.ok) {
@@ -46,45 +52,63 @@ const App = () => {
       console.error(error)
       setProducts([])
     }
-  }
+  }, [])
 
   useEffect(() => {
-    fetchProducts()
-  }, [authToken, user])
+    let ignore = false
+    const load = async () => {
+      if (!ignore) {
+        await fetchProducts()
+      }
+    }
+    load()
+    return () => {
+      ignore = true
+    }
+  }, [fetchProducts])
 
-  useEffect(() => {
+  const fetchOrders = useCallback(async () => {
     if (!authToken) {
       setOrders([])
       return
     }
 
     const normalizeOrder = (order) => {
-      const id = order?._id || order?.id
+      const id = order?.orderNumber || order?._id || order?.id
       return { ...order, id, _id: id }
     }
 
-    const fetchOrders = async () => {
-      try {
-        const response = await fetch(`${API_BASE}/orders`, {
-          headers: {
-            Authorization: `Bearer ${authToken}`
-          }
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to load orders')
+    try {
+      const response = await fetch(`${API_BASE}/orders`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`
         }
+      })
 
-        const data = await response.json()
-        setOrders(Array.isArray(data) ? data.map(normalizeOrder) : [])
-      } catch (error) {
-        console.error(error)
-        setOrders([])
+      if (!response.ok) {
+        throw new Error('Failed to load orders')
+      }
+
+      const data = await response.json()
+      setOrders(Array.isArray(data) ? data.map(normalizeOrder) : [])
+    } catch (error) {
+      console.error(error)
+      setOrders([])
+    }
+  }, [authToken])
+
+  useEffect(() => {
+    let ignore = false
+    const load = async () => {
+      if (!ignore) {
+        await fetchOrders()
       }
     }
-
-    fetchOrders()
-  }, [authToken])
+    load()
+    return () => {
+      ignore = true
+    }
+  }, [fetchOrders])
 
   const productsBySeason = products.reduce((acc, product) => {
     const seasonKey = (product.season || product.category || 'kanto').toLowerCase()
@@ -124,6 +148,7 @@ const App = () => {
   const handleLogout = () => {
     setUser(null)
     setAuthToken('')
+    setOrders([])
     localStorage.removeItem('pokevault-user')
     localStorage.removeItem('pokevault-token')
     setView('login')
@@ -238,7 +263,7 @@ const App = () => {
       const savedOrder = await response.json()
       const normalizedOrder = {
         ...savedOrder,
-        id: savedOrder._id || savedOrder.id,
+        id: savedOrder.orderNumber || savedOrder._id || savedOrder.id,
         _id: savedOrder._id || savedOrder.id
       }
 

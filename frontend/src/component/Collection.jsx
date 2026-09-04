@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react'
-import { seasonCatalog } from './shop'
+import './shop.css'
+import { seasonCatalog } from '../constants/seasonCatalog'
 
 const formatPrice = (value) =>
   new Intl.NumberFormat('en-IN', {
@@ -15,7 +16,7 @@ const normalizePrice = (value) => {
 
 const allCards = Object.values(seasonCatalog)
   .flatMap((season) =>
-    season.cards.map((card) => ({
+    (season.cards || []).map((card) => ({
       ...card,
       season: season.name,
       seasonId: Object.keys(seasonCatalog).find((key) => seasonCatalog[key].name === season.name)
@@ -66,21 +67,31 @@ const Collection = ({ query = '', cards = [], onBack, onAddToCart, onCheckout, c
 
       <div className="shop-layout">
         <div className="shop-grid">
-          {filteredCards.map((card) => (
-            <div key={`${card.season || card.category || 'season'}-${card.name}`} className="shop-card">
-              <img className="shop-card-image" src={card.image} alt={card.name} />
-              <div className="shop-body">
-                <div className="shop-tag">{card.season || card.category || 'Collection'}</div>
-                <h3>{card.name}</h3>
-                <p className="card-detail">{card.detail || card.description || 'Premium Pokémon card'}</p>
-                <div className="shop-meta">
-                  <span>{card.rarity}</span>
-                  <strong>{formatPrice(normalizePrice(card.price))}</strong>
+          {filteredCards.map((card) => {
+            const cardId = card._id || card.id || `${card.season || card.category || 'season'}-${card.name}`
+            const isOutOfStock = Number(card.stock ?? 0) <= 0
+            return (
+              <div key={cardId} className="shop-card">
+                <img className="shop-card-image" src={card.image} alt={card.name} />
+                <div className="shop-body">
+                  <div className="shop-tag">{card.season || card.category || 'Collection'}</div>
+                  <h3>{card.name}</h3>
+                  <p className="card-detail">{card.detail || card.description || 'Premium Pokémon card'}</p>
+                  <div className="shop-meta">
+                    <span>{card.rarity}</span>
+                    <strong>{formatPrice(normalizePrice(card.price))}</strong>
+                  </div>
+                  <button
+                    className="buy-btn"
+                    disabled={isOutOfStock}
+                    onClick={() => onAddToCart({ ...card, id: cardId })}
+                  >
+                    {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+                  </button>
                 </div>
-                <button className="buy-btn" onClick={() => onAddToCart({ ...card, id: card.id || `${card.name}-${card.rarity}` })}>Add to Cart</button>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </div>
