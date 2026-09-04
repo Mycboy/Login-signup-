@@ -90,25 +90,29 @@ const Dashboard = ({ onLogout, onSelectSeason, onOpenCollection, onCheckout, onT
           </nav>
 
           <div className="top-actions">
-            <input
-              className="search-box"
-              placeholder="Search cards"
-              value={searchTerm}
-              onChange={(event) => setSearchTerm(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') {
-                  onOpenCollection(searchTerm)
-                }
-              }}
-            />
-            <button type="button" className="secondary-btn" onClick={() => onOpenCollection(searchTerm)}>Search</button>
-            {hasOrders && (
-              <button className="secondary-btn" onClick={onTrackOrder}>Track Order</button>
-            )}
-            <button className="cta-btn" onClick={onCheckout}>Cart ({cartCount})</button>
-            {onLogout && (
-              <button className="logout-btn" onClick={onLogout}>Logout</button>
-            )}
+            <div className="search-group">
+              <input
+                className="search-box"
+                placeholder="Search cards"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    onOpenCollection(searchTerm)
+                  }
+                }}
+              />
+              <button type="button" className="secondary-btn search-btn" onClick={() => onOpenCollection(searchTerm)}>Search</button>
+            </div>
+            <div className="nav-action-buttons">
+              {hasOrders && (
+                <button type="button" className="secondary-btn" onClick={onTrackOrder}>Track Order</button>
+              )}
+              <button type="button" className="cta-btn" onClick={onCheckout}>Cart ({cartCount})</button>
+              {onLogout && (
+                <button type="button" className="logout-btn" onClick={onLogout}>Logout</button>
+              )}
+            </div>
           </div>
         </header>
 
