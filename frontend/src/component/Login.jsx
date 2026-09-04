@@ -56,10 +56,11 @@ const Login = ({ onAuthSuccess }) => {
       }
 
       if (!response.ok) {
+        const fullUrl = `${API_BASE}${endpoint}`
         throw new Error(
           data.message ||
           data.error ||
-          `Server returned status ${response.status} (${response.statusText || 'Error'}). Check if backend is awake and healthy.`
+          `Server error ${response.status} from: ${fullUrl}. Check your Vercel VITE_API_BASE setting and Render backend status.`
         )
       }
 
