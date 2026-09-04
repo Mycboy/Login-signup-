@@ -1,5 +1,12 @@
 const mongoose = require('mongoose')
+const dns = require('dns')
 const { seedProducts, seedAdmin } = require('../seedProducts')
+
+try {
+  dns.setServers(['8.8.8.8', '8.8.4.4'])
+} catch {
+  // fallback to system default
+}
 
 const connectDB = async () => {
   try {
