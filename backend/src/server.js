@@ -12,18 +12,42 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
+const mongoose = require('mongoose')
+
 connectDB()
 
 app.get('/', (req, res) => {
   res.json({
-    message: 'Backend is running successfully'
+    message: 'Backend is running successfully',
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'connecting'
   })
 })
 
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'connecting',
+    timestamp: new Date().toISOString()
+  })
+})
+
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'connecting',
+    timestamp: new Date().toISOString()
+  })
+})
+
+// Support both /api/* and root paths for maximum compatibility
 app.use('/api/auth', authRoutes)
+app.use('/auth', authRoutes)
 app.use('/api/orders', orderRoutes)
+app.use('/orders', orderRoutes)
 app.use('/api/products', productRoutes)
+app.use('/products', productRoutes)
 app.use('/api/admin', adminRoutes)
+app.use('/admin', adminRoutes)
 
 app.use((err, req, res, next) => {
   console.error(err)

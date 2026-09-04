@@ -48,17 +48,26 @@ const Login = ({ onAuthSuccess }) => {
         body: JSON.stringify(payload)
       })
 
-      const data = await response.json()
+      let data = {}
+      try {
+        data = await response.json()
+      } catch {
+        // Non-JSON response
+      }
 
       if (!response.ok) {
-        throw new Error(data.message || 'Authentication failed')
+        throw new Error(
+          data.message ||
+          data.error ||
+          `Server returned status ${response.status} (${response.statusText || 'Error'}). Check if backend is awake and healthy.`
+        )
       }
 
       if (onAuthSuccess) {
         onAuthSuccess(data)
       }
     } catch (err) {
-      setError(err.message)
+      setError(err.message || 'Authentication failed. Please check network connection.')
     } finally {
       setIsSubmitting(false)
     }

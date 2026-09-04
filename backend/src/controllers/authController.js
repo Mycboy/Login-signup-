@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const mongoose = require('mongoose')
 const User = require('../models/user')
 
 const generateToken = (user) => {
@@ -14,6 +15,12 @@ const generateToken = (user) => {
 
 const signup = async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        message: 'Database is still connecting. Please wait a few seconds and try again.'
+      })
+    }
+
     const { name, email, password, confirmPassword } = req.body
 
     if (!name || !email || !password) {
@@ -40,12 +47,18 @@ const signup = async (req, res) => {
       token: generateToken(user)
     })
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    res.status(500).json({ message: error.message || 'Signup failed' })
   }
 }
 
 const login = async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        message: 'Database is still connecting. Please wait a few seconds and try again.'
+      })
+    }
+
     const { email, password } = req.body
 
     if (!email || !password) {

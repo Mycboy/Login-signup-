@@ -17,7 +17,7 @@ const connectDB = async () => {
     await seedAdmin()
   } catch (error) {
     console.error('MongoDB connection failed:', error.message)
-    process.exit(1)
+    console.error('Please verify MONGO_URI in your environment variables.')
   }
 }
 
